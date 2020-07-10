@@ -2,29 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-namespace UnityStandardAssets.Vehicles.Car
-{
-    [RequireComponent(typeof(CarController))]
+using System.Collections.Specialized;
+
     public class TransformObject : MonoBehaviour
     {
-        private CarController m_CarController;
+        private Transform _transform;
+        Rigidbody rigidbody;
 
-        private void Awake()//起動時に一回だけ動く
-        {
-            // get the car controller reference
-            m_CarController = GetComponent<CarController>();
-
-        }
+        
         // Start is called before the first frame update
         void Start()
         {
-
+            //Player_pos = GetComponent<Transform>().position;    //最初のポジション
+            _transform = transform;
+            rigidbody = this.GetComponent<Rigidbody>();
         }
 
         // Update is called once per frame
-        void Update()
+        void FixedUpdate()
         {
-            this.transform.position += new Vector3(0, 0, 0.01f);
+            var forward = _transform.forward;
+            this.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 1f);
+         
+            Debug.Log(rigidbody.velocity.magnitude + "m/s");
+            Debug.Log($"正面:{forward}");
         }
     }
-}

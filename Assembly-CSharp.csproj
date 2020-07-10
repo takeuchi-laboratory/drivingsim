@@ -220,6 +220,9 @@
      <Compile Include="Assets\Oculus\Spatializer\scripts\ONSPVersion.cs" />
      <Compile Include="Assets\Oculus\Spatializer\scripts\OculusSpatializerUnity.cs" />
      <Compile Include="Assets\Oculus\Spatializer\scripts\helpers\ONSPReflectionZone.cs" />
+     <Compile Include="Assets\OutputAnotherStatus.cs" />
+     <Compile Include="Assets\OutputStatus.cs" />
+     <Compile Include="Assets\Recenter.cs" />
      <Compile Include="Assets\SampleScenes\Menu\Scripts\MenuSceneLoader.cs" />
      <Compile Include="Assets\SampleScenes\Menu\Scripts\PauseMenu.cs" />
      <Compile Include="Assets\SampleScenes\Menu\Scripts\SceneAndURLLoader.cs" />
@@ -256,8 +259,6 @@
      <Compile Include="Assets\Vehicle Physics Pro\Scenes\UI\Scripts\ShowValueFromSlider.cs" />
      <Compile Include="Assets\Vehicle Physics Pro\Scenes\UI\Scripts\TelemetryChartToolbar.cs" />
      <Compile Include="Assets\Vehicle Physics Pro\Scenes\UI\Scripts\VehicleSetupDialog.cs" />
-     <Compile Include="Assets\VehicleSystemFree\Scenes\Script\DestroyObjectFree.cs" />
-     <Compile Include="Assets\VehicleSystemFree\Scripts\VehicleFree.cs" />
      <None Include="Assets\Oculus\SampleFramework\Usage\HandsTrainExample\Shaders\XingLightShader.shader" />
      <None Include="Assets\Oculus\Avatar\Resources\Materials\AvatarMaterialStateShader.cginc" />
      <None Include="Assets\Oculus\SampleFramework\Usage\HandsTrainExample\Shaders\ButtonGlow.shader" />
@@ -486,7 +487,7 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.15f1/Editor/Data/Managed/UnityEditor.dll</HintPath>
  </Reference>
  <Reference Include="VehiclePhysics">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Assets/Vehicle Physics Pro/Sdk/VehiclePhysics.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Assets/Vehicle Physics Pro/Sdk/VehiclePhysics.dll</HintPath>
  </Reference>
  <Reference Include="mscorlib">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.15f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -843,31 +844,31 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.15f1/Editor/Data/MonoBleedingEdge/lib/mono/unityscript/Boo.Lang.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Timeline.Editor">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.VSCode.Editor">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Timeline">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Rider.Editor">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.UI">
- <HintPath>C:/Users/inf-shizuoka/Desktop/drivingsim/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+ <HintPath>C:/Users/saeki tomonori/Desktop/drivingsim/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>
