@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
-
+//carの全長4.8mくらい
+//vppの座標から後ろまで2.7mくらい、前まで2.5mくらい
 public class TransformObject : MonoBehaviour
 {
     private Transform _transform;
@@ -14,25 +16,37 @@ public class TransformObject : MonoBehaviour
     Transform vpptransform; //vppのtransformを格納する変数?
     Quaternion quaternionvpp;
     public GameObject vpp;
-    public float Cm;
-    public float d = 20; //接近距離の閾値
-    public float BaseSpeed_kms = 40;    //carの基本速度(km)
-    public float MaxSpeed_kms = 60;      //carの最高速度(km)
+
+    public float d = 30; //接近距離の閾値
+    public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
+    public float MaxSpeed_kmh = 60;      //carの最高速度(km/h)
+    public float SlowSpeed_kmh = 40;    //vppが遅いときの閾値(km/h)
+    public float a1 = 50f, b1 = 5f;
+    public float a2 = 1, b2 = 1;
+    public float a3 = 50, b3 = 5; //パラメータ
+    public float a4 = 20, b4 = 1;    //パラメータ
     [System.NonSerialized] public float BaseSpeed_ms;   //carの基本速度(m/s) unity上ではm/sで速度を与える必要がある
     [System.NonSerialized] public float MaxSpeed_ms;    //carの最高速度(m/s)
+    [System.NonSerialized] public float SlowSpeed_ms;   //vppが遅いときの閾値(m/s)
     [System.NonSerialized] public float v;              //実際にcarに与える速度
+    [System.NonSerialized] public float Cm, Cm1, Cm2;
+    [System.NonSerialized] public float Co, Co1, Co2;
     float prevelocityvpp;   //作業用変数 vppの前の速度(急ブレーキ時の加速度を求めるため)
     float prerotationvpp;   //作業用変数　vppの前の角度
     float rotation;         
     float CountRotationErr;   //蛇行した時間
-    [System.NonSerialized] public float t;    //距離が閾値未満になった継続時間
+    float Add1, Add2, Add3;
+    float Sub1, Sub2, Sub3;
+
+    [System.NonSerialized] public float t1,t2,t3,t4;    //距離が閾値未満になった継続時間
     bool CarisFront; //0なら自動運転車が後ろ、1なら前
 
     // Start is called before the first frame update
     void Start()
         {
-        BaseSpeed_ms = BaseSpeed_kms / 3.6f;    //km/sをm/sに変換
-        MaxSpeed_ms = MaxSpeed_kms / 3.6f;      //km/sをm/sに変換
+        BaseSpeed_ms = BaseSpeed_kmh / 3.6f;    //km/hをm/sに変換
+        MaxSpeed_ms = MaxSpeed_kmh / 3.6f;      //km/hをm/sに変換
+        SlowSpeed_ms = SlowSpeed_kmh / 3.6f;
         v = BaseSpeed_ms;                       //carの速度の初期値
         cartransform = this.transform;
         vpptransform = vpp.transform;
@@ -49,38 +63,84 @@ public class TransformObject : MonoBehaviour
         //rigidbodyvpp.velocity.magnitude vppの速度
         //rigidbody.velocity = transform.forward * 1.0f; //carの向いている方向に速度1m/sを与える。こんな感じで速度を出させる
 
-        Vector3 carpos = transform.position;    //carの位置
-        Vector3 vpppos = vpp.transform.position;    //vppの位置
-        float dis = Vector3.Distance(carpos, vpppos);   //車間距離
-
+        float carpos = transform.position.z;    //carの位置
+        float vpppos = vpptransform.position.z;    //vppの位置
+        float dis = (float)Math.Abs(carpos - vpppos);   //車間距離
+        CheckPosition();
         quaternionvpp = vpp.transform.rotation;
-        //Debug.Log("車間距離:" + dis);
-        if (dis <= d)    //車間距離が閾値より短くなった時
+        Debug.Log("車間距離:" + dis);
+        if (dis <= d && CarisFront == true)    //車間距離が閾値より短くなった時
         {
-            t = t + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)
-            Cm = t * (d - dis) / d;
+            t1 = t1 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)          
+            Add1 = (float)Math.Sqrt((Math.Abs(d - dis)*a1 / d) * t1*b1);
+            t2 = Mathf.Clamp(t2 - 0.02f, 0, 1000); ;
+            
         }
-        else
+        else if(dis > d && CarisFront == true)
         {
-            Cm = Cm - 0.00001f;
+            
+            t2 = t2 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)
+            Sub1 = t2 * b2 ;
+            //Sub1 = (float)Math.Sqrt((Math.Abs(d - dis)*a2 / d) * t2*b2);
+            t1 = Mathf.Clamp(t1 - 0.02f, 0, 1000);
+            
         }
-        Cm = Mathf.Clamp(Cm, 0, 100);   //Mathf.Clamp(x, min, max) …xの値の範囲の指定ができる
-        if (Cm > 5)
+        else if (rigidbodyvpp.velocity.magnitude < SlowSpeed_ms && CarisFront == false)
+        {
+            t3 = t3 + 0.02f;
+            Add2 = (float)Math.Sqrt((Math.Abs(SlowSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / SlowSpeed_ms) * t3 * b3);
+            t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
+            if (dis < 30f)
+            {
+               
+                rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
+            }
+            else
+            {
+                rigidbody.velocity = transform.forward * BaseSpeed_ms;
+            }
+            
+
+        }
+        else if (rigidbodyvpp.velocity.magnitude >= SlowSpeed_ms && CarisFront == false)
+        {
+            t4 = t4 + 0.02f;
+            Sub2 = (float)Math.Sqrt((Math.Abs(SlowSpeed_ms - rigidbodyvpp.velocity.magnitude)*a4 / SlowSpeed_ms) * t4*b4);
+            t3 = t3 - Mathf.Clamp(t3 - 0.02f, 0, 1000); 
+        }
+        //Cm1 = t1;
+        //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
+        Add1 = Mathf.Clamp(Add1, 0, 50f);
+        Add2 = Mathf.Clamp(Add2, 0, 50f);
+        Sub1 = Mathf.Clamp(Sub1, 0, Add1);
+        Sub2 = Mathf.Clamp(Sub2, 0, Add2);
+        
+        Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
+        Cm = Cm1;
+        if (Cm > 0.6 && CarisFront == true)    //Cmが閾値より高いかつ、エージェント前、人が後ろのとき
         {
             v = v + 0.02f / 3.6f;
             v = Mathf.Clamp(v, 0, MaxSpeed_ms);
             rigidbody.velocity = transform.forward * v;
         }
-        else
+        else if(Cm > 0.6 && CarisFront == false)   //Cmが閾値より高いかつ、エージェント後ろ、人が前のとき
+        {
+            //v = v - 0.02f / 3.6f;
+            //v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
+            //rigidbody.velocity = transform.forward * v;
+        } else if(Cm <= 0.6 && CarisFront == true)
         {
             v = v - 0.02f / 3.6f;
             v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
             rigidbody.velocity = transform.forward * v;
+        } else if(Cm <= 0.6 && CarisFront == false)
+        {
+
         }
 
         //myTransform = this.transform;
          Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
-        Debug.Log("Cmの値" + Cm);
+        Debug.Log("Cmの値" + Cm1);
         //Debug.Log("vppの前の速度" + prevelocityvpp);
         //Debug.Log("vppの今の速度" + rigidbodyvpp.velocity.magnitude);
         //Debug.Log("加速度" + (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02);
@@ -90,7 +150,7 @@ public class TransformObject : MonoBehaviour
             Debug.Log("急ブレーキ検知");
         }
 
-        CheckPosition();
+        
         /*if(CarisFront == true)
         {
             Debug.Log("car:前");
@@ -123,7 +183,7 @@ public class TransformObject : MonoBehaviour
         {
             CarisFront = true;
         }
-        else
+        else if(cartransform.position.z - vpptransform.position.z < 0)
         {
             CarisFront = false;
         }
