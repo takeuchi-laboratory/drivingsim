@@ -37,6 +37,10 @@ public class TransformObject : MonoBehaviour
     float CountRotationErr;   //蛇行した時間
     float Add1, Add2, Add3;
     float Sub1, Sub2, Sub3;
+    float PreCarPositionX;  //前のエージェントのx座標
+    float PreCarPositionZ;  //前のエージェントのz座標(進行方向)
+    float PreVppPositionX;  //前の人のx座標
+    float PreVppPositionZ;  //前の人のz座標(進行方向)
 
     [System.NonSerialized] public float t1,t2,t3,t4;    //距離が閾値未満になった継続時間
     bool CarisFront; //0なら自動運転車が後ろ、1なら前
@@ -54,7 +58,13 @@ public class TransformObject : MonoBehaviour
         rigidbodyvpp = vpp.GetComponent<Rigidbody>();
         prerotationvpp = quaternionvpp.eulerAngles.y;
         prevelocityvpp = rigidbodyvpp.velocity.magnitude;
-        }
+        PreCarPositionX = cartransform.position.x;
+        PreCarPositionZ = cartransform.position.z;
+        PreVppPositionX = vpptransform.position.x;
+        PreVppPositionZ = vpptransform.position.z;
+        rigidbody.velocity = transform.forward * BaseSpeed_ms;
+        //rigidbody.AddForce(transform.forward * 10f, ForceMode.Acceleration);
+    }
 
         // Update is called once per frame
         void FixedUpdate()
@@ -62,21 +72,21 @@ public class TransformObject : MonoBehaviour
         //var forward = _transform.forward;
         //rigidbodyvpp.velocity.magnitude vppの速度
         //rigidbody.velocity = transform.forward * 1.0f; //carの向いている方向に速度1m/sを与える。こんな感じで速度を出させる
-
-        float carpos = transform.position.z;    //carの位置
+        float carpos = cartransform.position.z;    //carの位置
         float vpppos = vpptransform.position.z;    //vppの位置
         float dis = (float)Math.Abs(carpos - vpppos);   //車間距離
         CheckPosition();
         quaternionvpp = vpp.transform.rotation;
         Debug.Log("車間距離:" + dis);
-        if (dis <= d && CarisFront == true)    //車間距離が閾値より短くなった時
+
+        if (dis <= d && CarisFront == true)    //車間距離が閾値より短くなったかつ、エージェントの車が前の時
         {
             t1 = t1 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)          
             Add1 = (float)Math.Sqrt((Math.Abs(d - dis)*a1 / d) * t1*b1);
             t2 = Mathf.Clamp(t2 - 0.02f, 0, 1000); ;
             
         }
-        else if(dis > d && CarisFront == true)
+        else if(dis > d && CarisFront == true)  //車間距離が閾値より長いかつ、エージェントの車が前の時
         {
             
             t2 = t2 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)
@@ -85,7 +95,7 @@ public class TransformObject : MonoBehaviour
             t1 = Mathf.Clamp(t1 - 0.02f, 0, 1000);
             
         }
-        else if (rigidbodyvpp.velocity.magnitude < SlowSpeed_ms && CarisFront == false)
+        else if (rigidbodyvpp.velocity.magnitude < SlowSpeed_ms && CarisFront == false)     //人の車の速度が閾値より小さいかつ、エージェントの車が後ろの時
         {
             t3 = t3 + 0.02f;
             Add2 = (float)Math.Sqrt((Math.Abs(SlowSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / SlowSpeed_ms) * t3 * b3);
@@ -93,16 +103,18 @@ public class TransformObject : MonoBehaviour
             if (dis < 30f)
             {
                
-                rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
+                //rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
+                rigidbody.AddForce(-transform.forward * 10f, ForceMode.Acceleration);
             }
             else
             {
-                rigidbody.velocity = transform.forward * BaseSpeed_ms;
+                //rigidbody.velocity = transform.forward * BaseSpeed_ms;
+                rigidbody.AddForce(transform.forward * 10f, ForceMode.Acceleration);
             }
             
 
         }
-        else if (rigidbodyvpp.velocity.magnitude >= SlowSpeed_ms && CarisFront == false)
+        else if (rigidbodyvpp.velocity.magnitude >= SlowSpeed_ms && CarisFront == false)    //人の車の速度が閾値より大きいから、エージェントの車が後ろの時
         {
             t4 = t4 + 0.02f;
             Sub2 = (float)Math.Sqrt((Math.Abs(SlowSpeed_ms - rigidbodyvpp.velocity.magnitude)*a4 / SlowSpeed_ms) * t4*b4);
@@ -160,7 +172,7 @@ public class TransformObject : MonoBehaviour
             Debug.Log("car:後ろ");
         }*/
         
-        if(Math.Abs(quaternionvpp.eulerAngles.y) > 10)
+        /*if(Math.Abs(quaternionvpp.eulerAngles.y) > 10)
         {
             CountRotationErr = CountRotationErr + 0.02f;
             //Debug.Log("CountRotationErr:" + CountRotationErr);
@@ -168,7 +180,7 @@ public class TransformObject : MonoBehaviour
         if(CountRotationErr > 10)
         {
             Debug.Log("蛇行検知");
-        } 
+        }*/ 
         prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
         //Debug.Log(quaternionvpp.eulerAngles.y);
             //Debug.Log("carのz座標:" + transform.position.z);
@@ -187,5 +199,17 @@ public class TransformObject : MonoBehaviour
         {
             CarisFront = false;
         }
+    }
+
+    void CheckDakou()
+    {
+        /*PreCarPositionX
+        PreCarPositionZ
+        PreVppPositionX
+        PreVppPositionZ
+        cartransform.position.x
+        cartransform.position.z
+        vpptransform.position.x
+        vpptransform.position.z*/
     }
 }
