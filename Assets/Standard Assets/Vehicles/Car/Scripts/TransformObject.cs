@@ -33,7 +33,7 @@ public class TransformObject : MonoBehaviour
     [System.NonSerialized] public float v;              //実際にcarに与える速度
     [System.NonSerialized] public float Cm, Cm1, Cm2;
     [System.NonSerialized] public float Co, Co1, Co2;
-    [System.NonSerialized] public float t1, t2, t3, t4, t5, t6;    //距離が閾値未満になった継続時間
+    float t1, t2, t3, t4, t5, t6;    //距離が閾値未満になった継続時間
     float prevelocityvpp;   //作業用変数 vppの前の速度(急ブレーキ時の加速度を求めるため)
     float prerotationvpp;   //作業用変数　vppの前の角度
     float rotation;         
@@ -45,7 +45,7 @@ public class TransformObject : MonoBehaviour
     float PreVppPositionX;  //前の人のx座標
     float PreVppPositionZ;  //前の人のz座標(進行方向)
     float G_sum;
-    float G_s = 1;      //ずれの閾値
+    float G_s = 0.5f;      //ずれの閾値
     float Gap_CarX;  
     float Gap_VppX;
     float Gap;  //人の車とエージェントの車の0.02秒間のx座標のずれ
@@ -73,8 +73,8 @@ public class TransformObject : MonoBehaviour
         PreCarPositionZ = cartransform.position.z;
         PreVppPositionX = vpptransform.position.x;
         PreVppPositionZ = vpptransform.position.z;  
-        //rigidbody.velocity = transform.forward * BaseSpeed_ms;
-        rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
+        rigidbody.velocity = transform.forward * BaseSpeed_ms;
+        //rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
     }
 
         // Update is called once per frame
@@ -91,46 +91,84 @@ public class TransformObject : MonoBehaviour
         quaternionvpp = vpp.transform.rotation;
         //Debug.Log("車間距離:" + dis);
 
-        if (dis <= d && CarisFront == true)    //車間距離が閾値より短くなったかつ、エージェントの車が前の時
+        if(CarisFront == true)  //エージェントの車が前の時
         {
-            t1 = t1 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)          
-            Add1 = (float)Math.Sqrt((Math.Abs(d - dis)*a1 / d) * t1*b1);
-            t2 = Mathf.Clamp(t2 - 0.02f, 0, 1000); ;
-            
-        }
-        else if(dis > d && CarisFront == true)  //車間距離が閾値より長いかつ、エージェントの車が前の時
-        {
-            
-            t2 = t2 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)
-            Sub1 = t2 * b2 ;
-            //Sub1 = (float)Math.Sqrt((Math.Abs(d - dis)*a2 / d) * t2*b2);
-            t1 = Mathf.Clamp(t1 - 0.02f, 0, 1000);
-            
-        }
-        else if (rigidbodyvpp.velocity.magnitude < BaseSpeed_ms && CarisFront == false)     //人の車の速度が閾値より小さいかつ、エージェントの車が後ろの時
-        {
-            t3 = t3 + 0.02f;
-            Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / BaseSpeed_ms) * t3 * b3);
-            t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
-            if (dis < 30f)
+            if(dis <= d)        //車間距離が閾値より短い
             {
-               
-                //rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
-                rigidbody.AddForce(-transform.forward * 10f, ForceMode.Acceleration);
-            }
-            else
+                t1 = t1 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)          
+                Add1 = (float)Math.Sqrt((Math.Abs(d - dis) * a1 / d) * t1 * b1);
+                t2 = Mathf.Clamp(t2 - 0.02f, 0, 1000); 
+            } else if(dis > d)  //車間距離が閾値より長い
             {
-                //rigidbody.velocity = transform.forward * BaseSpeed_ms;
-                rigidbody.AddForce(transform.forward * 10f, ForceMode.Acceleration);
+                t2 = t2 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)
+                Sub1 = t2 * b2;
+                //Sub1 = (float)Math.Sqrt((Math.Abs(d - dis)*a2 / d) * t2*b2);
+                t1 = Mathf.Clamp(t1 - 0.02f, 0, 1000);
             }
-            
+        }
+        else if(CarisFront == false)    //エージェントの車が後ろの時
+        {
+            if(rigidbodyvpp.velocity.magnitude < BaseSpeed_ms)
+            {
+                //t3 = t3 + 0.02f;
+                //Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / BaseSpeed_ms) * t3 * b3);
+                //t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
+                if (dis < 30f)
+                {
+                    t3 = t3 + 0.02f;
+                    Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / BaseSpeed_ms) * t3 * b3);
+                    t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
+                    rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
+                    /*if(rigidbody.velocity.magnitude > rigidbodyvpp.velocity.magnitude)
+                    {
+                        rigidbody.AddForce(-transform.forward * 10f, ForceMode.Acceleration);
+                    }*/
+                    
+                }
+                else
+                {
+                    rigidbody.velocity = transform.forward * BaseSpeed_ms;
+                    /*if(rigidbody.velocity.magnitude < BaseSpeed_ms )
+                    {
+                        rigidbody.AddForce(transform.forward * 10f, ForceMode.Acceleration);
+                    }*/
+                    
+                }
+            } else if(rigidbodyvpp.velocity.magnitude >= BaseSpeed_ms)
+            {
+                t4 = t4 + 0.02f;
+                Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a4 / BaseSpeed_ms) * t4 * b4);
+                t3 = t3 - Mathf.Clamp(t3 - 0.02f, 0, 1000);
+                rigidbody.velocity = transform.forward * BaseSpeed_ms;
+            }
 
-        }
-        else if (rigidbodyvpp.velocity.magnitude >= BaseSpeed_ms && CarisFront == false)    //人の車の速度が閾値より大きいかつ、エージェントの車が後ろの時
-        {
-            t4 = t4 + 0.02f;
-            Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude)*a4 / BaseSpeed_ms) * t4*b4);
-            t3 = t3 - Mathf.Clamp(t3 - 0.02f, 0, 1000); 
+            if (countG < 50)
+            {
+                G_sum += Gap;
+                countG += 1;
+            }
+            else if (countG == 50)
+            {
+                if (G_sum >= G_s)
+                {
+                    t5 = t5 + 1;
+                    Add3 = (float)Math.Sqrt((Math.Abs(G_s - G_sum) * a5 / G_s) * t5 * b5);
+                    t6 = Mathf.Clamp(t6 - 1.00f, 0, 1000);
+                    Debug.Log("蛇行検知");
+                }
+                else
+                {
+                    t6 = t6 + 1;
+                    Sub3 = (float)Math.Sqrt((Math.Abs(G_s - G_sum) * a6 / G_s) * t6 * b6);
+                    t5 = Mathf.Clamp(t5 - 1.00f, 0, 1000);
+                }
+                countG = 0;
+                G_sum = 0;
+            }
+            if ((prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02 >= 9.00)
+            {
+                Debug.Log("急ブレーキ検知");
+            }
         }
         //Cm1 = t1;
         //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
@@ -141,98 +179,58 @@ public class TransformObject : MonoBehaviour
         
         Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
 
-        if(countG < 50)
-        {
-            G_sum += Gap;
-            countG += 1;
-        }
-        else if(countG == 50)
-        {
-            if(G_sum >= G_s)
-            {
-                t5 = t5 + 1;
-                Add3 = (float)Math.Sqrt((Math.Abs(G_s - G_sum) * a5 / G_s) * t5 * b5);
-                t6 = Mathf.Clamp(t6 - 1.00f, 0, 1000);
-                Debug.Log("蛇行検知");
-            }
-            else
-            {
-                t6 = t6 + 1;
-                Sub3 = (float)Math.Sqrt((Math.Abs(G_s - G_sum) * a6 / G_s) * t6 * b6);
-                t5 = Mathf.Clamp(t5 - 1.00f, 0, 1000);
-            }
-            countG = 0;
-        }
-
         Cm = Cm1;
         if (Cm > 0.6 && CarisFront == true)    //Cmが閾値より高いかつ、エージェント前、人が後ろのとき
         {
-            if(rigidbody.velocity.magnitude < MaxSpeed_ms)
+            /*if(rigidbody.velocity.magnitude < MaxSpeed_ms)
             {
                 rigidbody.AddForce(transform.forward * 20f, ForceMode.Acceleration);
-            }
-            //v = v + 0.02f / 3.6f;
-            //v = Mathf.Clamp(v, 0, MaxSpeed_ms);
-            //rigidbody.velocity = transform.forward * v;
+            }*/
+            v = v + 0.02f / 3.6f;
+            v = Mathf.Clamp(v, 0, MaxSpeed_ms);
+            rigidbody.velocity = transform.forward * v;
         }
         else if(Cm > 0.6 && CarisFront == false)   //Cmが閾値より高いかつ、エージェント後ろ、人が前のとき
         {
-            //v = v - 0.02f / 3.6f;
-            //v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
-            //rigidbody.velocity = transform.forward * v;
+            /*v = v - 0.02f / 3.6f;
+            v = Mathf.Clamp(v, rigidbodyvpp.velocity.magnitude, BaseSpeed_ms);
+            rigidbody.velocity = transform.forward * v;*/
         } else if(Cm <= 0.6 && CarisFront == true)
         {
-            if (rigidbody.velocity.magnitude > BaseSpeed_ms)
+            /*if (rigidbody.velocity.magnitude > BaseSpeed_ms)
             {
                 rigidbody.AddForce(-transform.forward * 20f, ForceMode.Acceleration);
             }
             else if (rigidbody.velocity.magnitude < BaseSpeed_ms)
             {
                 rigidbody.AddForce(transform.forward * 40f, ForceMode.Acceleration);
-            }
-            //v = v - 0.02f / 3.6f;
-            //v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
-            //rigidbody.velocity = transform.forward * v;
+            }*/
+            v = v - 0.02f / 3.6f;
+            v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
+            rigidbody.velocity = transform.forward * v;
         } else if(Cm <= 0.6 && CarisFront == false)
         {
-
+            /*if (rigidbody.velocity.magnitude < MaxSpeed_ms)
+            {
+                rigidbody.AddForce(transform.forward * 20f, ForceMode.Acceleration);
+            }*/
+            //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         }
 
-        //myTransform = this.transform;
         Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
         Debug.Log("Cmの値" + Cm1);
         //Debug.Log("vppの前の速度" + prevelocityvpp);
         //Debug.Log("vppの今の速度" + rigidbodyvpp.velocity.magnitude);
         //Debug.Log("加速度" + (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02);
-        if((prevelocityvpp - rigidbodyvpp.velocity.magnitude)/0.02 >= 9.00)
-        {
-            //Debug.Log("加速度" + (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02);
-            Debug.Log("急ブレーキ検知");
-        }
-
-        
-
-        
-        /*if(Math.Abs(quaternionvpp.eulerAngles.y) > 10)
-        {
-            CountRotationErr = CountRotationErr + 0.02f;
-            //Debug.Log("CountRotationErr:" + CountRotationErr);
-        }
-        if(CountRotationErr > 10)
-        {
-            Debug.Log("蛇行検知");
-        }*/ 
+        //Debug.Log("carのz座標:" + transform.position.z);
+        //Debug.Log("vppのz座標:" + vpp.transform.position.z);
+        //Debug.Log("vppの速度" + rigidbodyvpp.velocity.magnitude + "m/s");
+        //Debug.Log($"正面:{forward}");
         prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
         PreCarPositionX = cartransform.position.x;
         PreCarPositionZ = cartransform.position.z;
         PreVppPositionX = vpptransform.position.x;
         PreVppPositionZ = vpptransform.position.z;
-
-        //Debug.Log(quaternionvpp.eulerAngles.y);
-        //Debug.Log("carのz座標:" + transform.position.z);
-        //Debug.Log("vppのz座標:" + vpp.transform.position.z);
-        //Debug.Log("vppの速度" + rigidbodyvpp.velocity.magnitude + "m/s");
-        //Debug.Log($"正面:{forward}");
     }
 
     void CheckPosition()
