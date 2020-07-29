@@ -5,8 +5,10 @@ using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
+
 //carの全長4.8mくらい
 //vppの座標から後ろまで2.7mくらい、前まで2.5mくらい
+//0.02秒で(40/3.6)*0.02m　移動すれば時速40kmと同じになるはず
 public class TransformObject : MonoBehaviour
 {
     private Transform _transform;
@@ -73,7 +75,7 @@ public class TransformObject : MonoBehaviour
         PreCarPositionZ = cartransform.position.z;
         PreVppPositionX = vpptransform.position.x;
         PreVppPositionZ = vpptransform.position.z;  
-        rigidbody.velocity = transform.forward * BaseSpeed_ms;
+        //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         //rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
     }
 
@@ -118,7 +120,7 @@ public class TransformObject : MonoBehaviour
                     t3 = t3 + 0.02f;
                     Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / BaseSpeed_ms) * t3 * b3);
                     t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
-                    rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
+                    //rigidbody.velocity = transform.forward * rigidbodyvpp.velocity.magnitude;   //ぶつからないように、速度を下げる
                     /*if(rigidbody.velocity.magnitude > rigidbodyvpp.velocity.magnitude)
                     {
                         rigidbody.AddForce(-transform.forward * 10f, ForceMode.Acceleration);
@@ -127,7 +129,7 @@ public class TransformObject : MonoBehaviour
                 }
                 else
                 {
-                    rigidbody.velocity = transform.forward * BaseSpeed_ms;
+                    //rigidbody.velocity = transform.forward * BaseSpeed_ms;
                     /*if(rigidbody.velocity.magnitude < BaseSpeed_ms )
                     {
                         rigidbody.AddForce(transform.forward * 10f, ForceMode.Acceleration);
@@ -139,7 +141,7 @@ public class TransformObject : MonoBehaviour
                 t4 = t4 + 0.02f;
                 Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a4 / BaseSpeed_ms) * t4 * b4);
                 t3 = t3 - Mathf.Clamp(t3 - 0.02f, 0, 1000);
-                rigidbody.velocity = transform.forward * BaseSpeed_ms;
+                //rigidbody.velocity = transform.forward * BaseSpeed_ms;
             }
 
             if (countG < 50)
@@ -186,9 +188,9 @@ public class TransformObject : MonoBehaviour
             {
                 rigidbody.AddForce(transform.forward * 20f, ForceMode.Acceleration);
             }*/
-            v = v + 0.02f / 3.6f;
-            v = Mathf.Clamp(v, 0, MaxSpeed_ms);
-            rigidbody.velocity = transform.forward * v;
+            //v = v + 0.02f / 3.6f;
+            //v = Mathf.Clamp(v, 0, MaxSpeed_ms);
+            //rigidbody.velocity = transform.forward * v;
         }
         else if(Cm > 0.6 && CarisFront == false)   //Cmが閾値より高いかつ、エージェント後ろ、人が前のとき
         {
@@ -205,9 +207,9 @@ public class TransformObject : MonoBehaviour
             {
                 rigidbody.AddForce(transform.forward * 40f, ForceMode.Acceleration);
             }*/
-            v = v - 0.02f / 3.6f;
-            v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
-            rigidbody.velocity = transform.forward * v;
+            //v = v - 0.02f / 3.6f;
+            //v = Mathf.Clamp(v, BaseSpeed_ms, MaxSpeed_ms);
+            //rigidbody.velocity = transform.forward * v;
         } else if(Cm <= 0.6 && CarisFront == false)
         {
             /*if (rigidbody.velocity.magnitude < MaxSpeed_ms)
@@ -216,8 +218,10 @@ public class TransformObject : MonoBehaviour
             }*/
             //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         }
+        cartransform.Translate(0, 0, (40 / 3.6f) * 0.02f);
+        Debug.Log(Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02);
 
-        Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
+        //Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
         Debug.Log("Cmの値" + Cm1);
         //Debug.Log("vppの前の速度" + prevelocityvpp);
         //Debug.Log("vppの今の速度" + rigidbodyvpp.velocity.magnitude);
