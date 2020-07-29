@@ -51,6 +51,8 @@ public class TransformObject : MonoBehaviour
     float Gap_CarX;  
     float Gap_VppX;
     float Gap;  //人の車とエージェントの車の0.02秒間のx座標のずれ
+    double VppSpeed;
+    double CarSpeed;
 
     int countG;
     int countsuddenbraking, CountSuddenBraking;
@@ -90,6 +92,7 @@ public class TransformObject : MonoBehaviour
         float dis = (float)Math.Abs(carpos - vpppos);   //車間距離の絶対値
         CheckPosition();
         CalucGap();
+        CalucSpeed();
         quaternionvpp = vpp.transform.rotation;
         //Debug.Log("車間距離:" + dis);
 
@@ -219,12 +222,12 @@ public class TransformObject : MonoBehaviour
             //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         }
         cartransform.Translate(0, 0, (40 / 3.6f) * 0.02f);
-        Debug.Log(Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02);
-
+        //Debug.Log(Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02);
+        Debug.Log(VppSpeed);
         //Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
-        Debug.Log("Cmの値" + Cm1);
+        //Debug.Log("Cmの値" + Cm1);
         //Debug.Log("vppの前の速度" + prevelocityvpp);
-        //Debug.Log("vppの今の速度" + rigidbodyvpp.velocity.magnitude);
+        Debug.Log("vppの今の速度" + rigidbodyvpp.velocity.magnitude * 3.6);
         //Debug.Log("加速度" + (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02);
         //Debug.Log("carのz座標:" + transform.position.z);
         //Debug.Log("vppのz座標:" + vpp.transform.position.z);
@@ -262,5 +265,11 @@ public class TransformObject : MonoBehaviour
         cartransform.position.z
         vpptransform.position.x
         vpptransform.position.z*/
+    }
+
+    void CalucSpeed()
+    {
+        VppSpeed = Math.Abs(PreVppPositionZ - vpptransform.position.z) * 3.6f / 0.02f;
+        CarSpeed = Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02f;
     }
 }
