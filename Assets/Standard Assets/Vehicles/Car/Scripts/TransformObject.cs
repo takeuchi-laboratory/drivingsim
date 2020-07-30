@@ -36,18 +36,22 @@ public class TransformObject : MonoBehaviour
     [System.NonSerialized] public float Cm, Cm1, Cm2;
     [System.NonSerialized] public float Co, Co1, Co2;
     float t1, t2, t3, t4, t5, t6;    //距離が閾値未満になった継続時間
+    float con1, con2, con3, con4, con5, con6;
     float prevelocityvpp;   //作業用変数 vppの前の速度(急ブレーキ時の加速度を求めるため)
     float prerotationvpp;   //作業用変数　vppの前の角度
     float rotation;         
     float CountRotationErr;   //蛇行した時間
     float Add1, Add2, Add3;
     float Sub1, Sub2, Sub3;
+    float Add4, Add5, Add6;
+    float Sub4, Sub5, Sub6;
     float PreCarPositionX;  //前のエージェントのx座標
     float PreCarPositionZ;  //前のエージェントのz座標(進行方向)
     float PreVppPositionX;  //前の人のx座標
     float PreVppPositionZ;  //前の人のz座標(進行方向)
     float G_sum;
-    float G_s = 0.5f;      //ずれの閾値
+    float G_Cm = 0.5f;      //ずれの閾値Cm
+    float G_Co = 1.0f;      //ずれの閾値Co
     float Gap_CarX;  
     float Gap_VppX;
     float Gap;  //人の車とエージェントの車の0.02秒間のx座標のずれ
@@ -94,7 +98,7 @@ public class TransformObject : MonoBehaviour
         CalucGap();
         CalucSpeed();
         quaternionvpp = vpp.transform.rotation;
-        //Debug.Log("車間距離:" + dis);
+        Debug.Log("車間距離:" + dis);
 
         if(CarisFront == true)  //エージェントの車が前の時
         {
@@ -154,19 +158,36 @@ public class TransformObject : MonoBehaviour
             }
             else if (countG == 50)
             {
-                if (G_sum >= G_s)
+                if (G_Co > G_sum && G_sum >= G_Cm)
                 {
                     t5 = t5 + 1;
-                    Add3 = (float)Math.Sqrt((Math.Abs(G_s - G_sum) * a5 / G_s) * t5 * b5);
+                    Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a5 / G_Cm) * t5 * b5);
                     t6 = Mathf.Clamp(t6 - 1.00f, 0, 1000);
                     Debug.Log("蛇行検知");
                 }
-                else
+                else if(G_sum < G_Cm)
                 {
                     t6 = t6 + 1;
-                    Sub3 = (float)Math.Sqrt((Math.Abs(G_s - G_sum) * a6 / G_s) * t6 * b6);
+                    Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a6 / G_Cm) * t6 * b6);
                     t5 = Mathf.Clamp(t5 - 1.00f, 0, 1000);
+
+                    con6 = con6 + 1;
+                    Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6);
+                    con5 = Mathf.Clamp(con5 - 1.00f, 0, 1000);
                 }
+                else if(G_sum >= G_Co)
+                {
+                    con5 = con5 + 1;
+                    Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con5);
+                    con6 = Mathf.Clamp(con6 - 1.00f, 0, 1000);
+                }
+                else if(G_sum < G_Cm)
+                {
+                    con6 = con6 + 1;
+                    Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6);
+                    con5 = Mathf.Clamp(con5 - 1.00f, 0, 1000);
+                }
+
                 countG = 0;
                 G_sum = 0;
             }
@@ -179,10 +200,13 @@ public class TransformObject : MonoBehaviour
         //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
         Add1 = Mathf.Clamp(Add1, 0, 50f);
         Add2 = Mathf.Clamp(Add2, 0, 50f);
+        Add3 = Mathf.Clamp(Add3, 0, 50f);
         Sub1 = Mathf.Clamp(Sub1, 0, Add1);
         Sub2 = Mathf.Clamp(Sub2, 0, Add2);
+        Sub3 = Mathf.Clamp(Sub3, 0, Add3);
         
         Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
+        Cm2 = (float)Math.Exp(Add3) / ((float)Math.Exp(Add3) + (float)Math.Exp(Sub3));
 
         Cm = Cm1;
         if (Cm > 0.6 && CarisFront == true)    //Cmが閾値より高いかつ、エージェント前、人が後ろのとき
