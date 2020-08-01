@@ -59,6 +59,7 @@ public class TransformObject : MonoBehaviour
     double CarSpeed;
 
     int countG;
+    int countreachtime;
     int countsuddenbraking, CountSuddenBraking;
 
     
@@ -114,6 +115,26 @@ public class TransformObject : MonoBehaviour
                 //Sub1 = (float)Math.Sqrt((Math.Abs(d - dis)*a2 / d) * t2*b2);
                 t1 = Mathf.Clamp(t1 - 0.02f, 0, 1000);
             }
+            if(dis <= d)
+            {
+                if(countreachtime < 50)
+                {
+                    countreachtime += 1;
+                } 
+            }
+            else if(dis > d)
+            {
+                if(countreachtime < 50)
+                {
+                    countreachtime = 0;
+                } else if(countreachtime >= 50)
+                {
+                    con1 = con1 + 1;
+                    Add4 = (float)Math.Sqrt(con1);
+                    con2 = Mathf.Clamp(con2 - 1, 0, 1000);
+                    countreachtime = 0;
+                }
+            }
         }
         else if(CarisFront == false)    //エージェントの車が後ろの時
         {
@@ -163,7 +184,7 @@ public class TransformObject : MonoBehaviour
                     t5 = t5 + 1;
                     Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a5 / G_Cm) * t5 * b5);
                     t6 = Mathf.Clamp(t6 - 1.00f, 0, 1000);
-                    Debug.Log("蛇行検知");
+                    //Debug.Log("蛇行検知");
                 }
                 else if(G_sum < G_Cm)
                 {
@@ -180,8 +201,9 @@ public class TransformObject : MonoBehaviour
                     con5 = con5 + 1;
                     Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con5);
                     con6 = Mathf.Clamp(con6 - 1.00f, 0, 1000);
+                    //Debug.Log("蛇行検知");
                 }
-                else if(G_sum < G_Cm)
+                else if(G_sum < G_Co)
                 {
                     con6 = con6 + 1;
                     Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6);
@@ -196,7 +218,6 @@ public class TransformObject : MonoBehaviour
                 Debug.Log("急ブレーキ検知");
             }
         }
-        //Cm1 = t1;
         //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
         Add1 = Mathf.Clamp(Add1, 0, 50f);
         Add2 = Mathf.Clamp(Add2, 0, 50f);
@@ -204,7 +225,10 @@ public class TransformObject : MonoBehaviour
         Sub1 = Mathf.Clamp(Sub1, 0, Add1);
         Sub2 = Mathf.Clamp(Sub2, 0, Add2);
         Sub3 = Mathf.Clamp(Sub3, 0, Add3);
-        
+
+        Add6 = Mathf.Clamp(Add6, 0, 50f);
+        Sub6 = Mathf.Clamp(Sub6, 0, Add6);
+
         Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
         Cm2 = (float)Math.Exp(Add3) / ((float)Math.Exp(Add3) + (float)Math.Exp(Sub3));
 
