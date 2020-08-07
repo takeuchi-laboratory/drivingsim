@@ -314,10 +314,10 @@ public class TransformObject : MonoBehaviour
 
             
             
-            f = fv(Co, Cm, CarSpeed, VppSpeed);
+            f = f + fv(Co, Cm, CarSpeed, VppSpeed);
             
 
-            cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
+            cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);    //ここで座標の移動を行っている
             //Debug.Log(Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02);
             //Debug.Log(VppSpeed);
             //Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
@@ -519,6 +519,18 @@ public class TransformObject : MonoBehaviour
         } else if((Co <= CoLine || Cm <= CmLine) && Qv == BaseSpeed_ms)
         {
             return 0;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    float fl(double Qv, double Pv, float Pa , float d )
+    {
+        if(Pa < 9.0 && d < 30)
+        {
+            return -9.0f;
         }
         else
         {
