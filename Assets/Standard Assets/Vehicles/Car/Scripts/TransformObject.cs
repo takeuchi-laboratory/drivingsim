@@ -4,7 +4,8 @@ using UnityEngine;
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
-
+using System.Text;
+using System.IO;
 
 //carの全長4.8mくらい
 //vppの座標から後ろまで2.7mくらい、前まで2.5mくらい
@@ -62,6 +63,7 @@ public class TransformObject : MonoBehaviour
     float Gap;  //人の車とエージェントの車の0.02秒間のx座標のずれ
     float f;
     float targetX1, targetZ1;  //追い越し時の車線変更するときのターゲット
+    string carspeed;
   
     Vector3 pos;
     Vector3 target;
@@ -74,6 +76,8 @@ public class TransformObject : MonoBehaviour
     int countG;
     int countreachtime,countsafetime;
     int countsuddenbraking, countsafetime2 ;
+
+    int personality;
 
     
     bool CarisFront; //0なら自動運転車が後ろ、1なら前
@@ -113,6 +117,9 @@ public class TransformObject : MonoBehaviour
         CalucSpeedAndAcceleration();
         quaternionvpp = vpp.transform.rotation;
         //Debug.Log("車間距離:" + dis);
+        carspeed = CarSpeed.ToString();
+
+        
 
         PreCarPositionX = cartransform.position.x;
         PreCarPositionZ = cartransform.position.z;
@@ -331,6 +338,7 @@ public class TransformObject : MonoBehaviour
 
             //rigidbody.velocity = transform.forward * (BaseSpeed_ms);
             cartransform.Translate(0, 0, (BaseSpeed_ms + (f * time)) * time);    //ここで座標の移動を行っている
+
             //cartransform.Translate(0, 0, (40 / 3.6f ) * 0.02f);
 
             //Debug.Log(Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02);
@@ -377,16 +385,16 @@ public class TransformObject : MonoBehaviour
                 //Debug.Log(Vector3.Dot(cartransform.forward, target));
                 //Debug.Log(cartransform.forward.magnitude * target.magnitude);
 
-                if (Vector3.Dot(cartransform.forward, target) <= cartransform.forward.magnitude * target.magnitude * 0.999
+                /*if (Vector3.Dot(cartransform.forward, target) <= cartransform.forward.magnitude * target.magnitude * 0.999
                     && cartransform.position.z < vpptransform.position.z)
                 {
                     if (target.x >= cartransform.forward.x)
                     {
-                        rigidbody.angularVelocity = new Vector3(0, 2f, 0);
+                        rigidbody.angularVelocity = new Vector3(0, 0.7f, 0);
                     }
                     else if (target.x < cartransform.forward.x)
                     {
-                        rigidbody.angularVelocity = new Vector3(0, -2f, 0);
+                        rigidbody.angularVelocity = new Vector3(0, -0.7f, 0);
                     }
                     //Debug.Log("Agentの速度:" + CarSpeed + "km/h");
                     Debug.Log("回転寿司");
@@ -409,8 +417,8 @@ public class TransformObject : MonoBehaviour
                     t = target.magnitude;
                     tx = targetX1 - cartransform.position.x;
                     tz = targetZ1 - cartransform.position.z;
-                    //cartransform.Translate((40 / 3.6f + (f1 * 0.02f)) * 0.02f * Math.Abs(tx / t), 0, (s40 / 3.6f + (f1 * 0.02f)) * 0.02f * Math.Abs(tz / t));
-                    rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
+                    cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * Math.Abs(tz / t));
+                    //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
 
                     //Debug.Log("f1:" + f1);
                     //Debug.Log("Agentの速度:" + CarSpeed + "km/h");
@@ -426,6 +434,35 @@ public class TransformObject : MonoBehaviour
                         pass_N = 1;
                         
                     }
+                }*/
+                if (CarSpeed <= 60)
+                {
+                    f += 2.0f;
+                }
+                else
+                {
+                    f -= 2.0f;
+                }
+                float t, tx, tz;
+                t = target.magnitude;
+                tx = targetX1 - cartransform.position.x;
+                tz = targetZ1 - cartransform.position.z;
+                cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * Math.Abs(tz / t));
+                //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
+
+                //Debug.Log("f1:" + f1);
+                //Debug.Log("Agentの速度:" + CarSpeed + "km/h");
+
+
+                pos = cartransform.position;
+                //Debug.Log("エージェント" + transform.position.z);
+                //Debug.Log("人" + PreVppPositionZ);
+                if (transform.position.z > targetZ1 + 8)
+                {
+                    //rigidbody.velocity = transform.forward * 0f;
+                    //Debug.Log("pass_N = 1へ移行");
+                    pass_N = 1;
+
                 }
                 Debug.Log("Agentの速度:" + CarSpeed + "km/h");
                 Debug.Log("Vppの速度:" + VppSpeed + "km/h");
@@ -441,17 +478,17 @@ public class TransformObject : MonoBehaviour
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
-                
-                if (Vector3.Dot(cartransform.forward, target) <= cartransform.forward.magnitude * target.magnitude * 0.999 &&
+
+                /*if (Vector3.Dot(cartransform.forward, target) <= cartransform.forward.magnitude * target.magnitude * 0.999 &&
                      transform.position.z < targetZ1)
                 {
                     if (target.x >= cartransform.forward.x)
                     {
-                        rigidbody.angularVelocity = new Vector3(0, 1.2f, 0);
+                        rigidbody.angularVelocity = new Vector3(0, 0.7f, 0);
                     }
                     else if (target.x < cartransform.forward.x)
                     {
-                        rigidbody.angularVelocity = new Vector3(0, -1.2f, 0);
+                        rigidbody.angularVelocity = new Vector3(0, -0.7f, 0);
                     }
                     //Debug.Log("回転寿司");
 
@@ -475,19 +512,45 @@ public class TransformObject : MonoBehaviour
                     t = target.magnitude;
                     tx = targetX1 - cartransform.position.x;
                     tz = targetZ1 - cartransform.position.z;
-                    //cartransform.Translate((40 / 3.6f + (f2 * 0.02f)) * 0.02f * (float)Math.Abs(tx / t), 0, (40 / 3.6f + (f2 * 0.02f)) * 0.02f * (float)Math.Abs(tz / t));
-                    rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
+                    cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tz / t));
+                    //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
                     pos = cartransform.position;
                     //Debug.Log("エージェント" + transform.position.z);
                     //Debug.Log("人" + PreVppPositionZ);
-                    /*if (transform.position.z > targetZ1 + 8)
+                    if (transform.position.z > targetZ1 + 8)
                     {
                         //rigidbody.velocity = transform.forward * 0f;
                         //Debug.Log(VppSpeed);
                         pass_N = 2;
                         
-                    }*/
+                    }
+                }*/
+
+                if (CarSpeed <= 60)
+                {
+                    f += 2.0f;
                 }
+                else
+                {
+                    f -= 2.0f;
+                }
+
+                float t, tx, tz;
+                t = target.magnitude;
+                tx = targetX1 - cartransform.position.x;
+                tz = targetZ1 - cartransform.position.z;
+                cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tz / t));
+                //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
+                pos = cartransform.position;
+                //Debug.Log("エージェント" + transform.position.z);
+                //Debug.Log("人" + PreVppPositionZ);
+                /*if (transform.position.z > targetZ1 + 8)
+                {
+                    //rigidbody.velocity = transform.forward * 0f;
+                    //Debug.Log(VppSpeed);
+                    pass_N = 2;
+
+                }*/
 
                 if (transform.position.z > targetZ1 + 15)
                 {
@@ -730,3 +793,7 @@ public class TransformObject : MonoBehaviour
         return d + 15 - 7.3f;
     }
 }
+//Vector3.Angle(from, to)   2点間の角度  0~180度のfloatが得られる
+//SignedAngle(Vector3 from, Vector3 to, Vector3 axis)   -180~180のfloatが得られる
+//Mathf.Sin(x)  sinx
+//Mathf.Cos(x)  cosx
