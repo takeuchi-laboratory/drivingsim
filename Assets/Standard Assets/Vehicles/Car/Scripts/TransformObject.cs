@@ -70,7 +70,7 @@ public class TransformObject : MonoBehaviour
 
     float VppSpeed, VppSpeed_ms;
     float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
-    int DrivingMode = 2;
+    int DrivingMode = 0;
     int pass_N = 0; //追い越しの状態遷移
     int pass_N2 = 0;    //蛇行の状態遷移
 
@@ -79,7 +79,7 @@ public class TransformObject : MonoBehaviour
     int countsuddenbraking, countsafetime2 ;
     int countD;
 
-    int personality;
+    public int personality; //0…普通 3…悪い
 
     
     bool CarisFront; //0なら自動運転車が後ろ、1なら前
@@ -202,7 +202,7 @@ public class TransformObject : MonoBehaviour
             }
             else if (CarisFront == false)    //エージェントの車が後ろの時
             {
-                if (rigidbodyvpp.velocity.magnitude < BaseSpeed_ms)
+                if (VppSpeed_ms < BaseSpeed_ms)
                 {
                     if (dis < 30f)
                     {
@@ -225,7 +225,7 @@ public class TransformObject : MonoBehaviour
 
                     }
                 }
-                else if (rigidbodyvpp.velocity.magnitude >= BaseSpeed_ms)
+                else if (VppSpeed_ms >= BaseSpeed_ms)
                 {
                     t4 = t4 + 0.02f;
                     t3 = t3 - Mathf.Clamp(t3 - 0.02f, 0, 1000);
@@ -841,7 +841,7 @@ public class TransformObject : MonoBehaviour
         vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / time;
     }
 
-    float fv(float Co, float Cm, float Qv, float Pv, float distance)
+    float fv(float Co, float Cm, float Qv, float Pv, float distance)    //Qv…自分 Pv…相手
     {
         if (VppPositionX > 145 && CarSpeed > 40 && CarisFront == true)
         {
@@ -878,11 +878,36 @@ public class TransformObject : MonoBehaviour
         {
             return 0;
         }
+        else if(Co > CoLine && CarisFront == true && personality == 3 && Qv > 30)
+        {
+            return -2.0f;
+        } 
+        else if(Cm > CmLine && CarisFront == true && personality == 3 && Qv >30)
+        {
+            return -9.0f;
+        }
         else if (Cm > CmLine && CarisFront == false)
         {
             DrivingMode = 1;
             return 0;
-        } 
+        }
+        else if ((Co > CoLine || Cm > CmLine)  && CarisFront == false && personality == 3 && Qv < Pv + 5 && distance > 5)
+        {
+            return 2.0f;
+        }
+        else if (Co > CoLine && CarisFront == false && personality == 3 && distance <= 5 && Qv > Pv)
+        {
+            return -5.0f;
+        }
+        else if (Co > CoLine && CarisFront == false && personality == 3 && Qv <= Pv)
+        {
+            return 2.0f;
+        }
+        else if(Cm > CmLine && CarisFront == false && personality == 3 && distance <= 5)
+        {
+            return -5.0f;
+        }
+        
         else if ((Co <= CoLine || Cm <= CmLine) && Qv > BaseSpeed_kmh)
         {
             return -2.0f;
@@ -895,6 +920,7 @@ public class TransformObject : MonoBehaviour
         {
             return 0;
         }
+        
         else
         {
             return 0;
