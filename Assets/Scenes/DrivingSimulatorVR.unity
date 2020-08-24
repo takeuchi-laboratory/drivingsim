@@ -121,6 +121,12 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &73487041 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5854770222567600239, guid: e40cbcea2d2666646a0445e24568c7d4,
+    type: 3}
+  m_PrefabInstance: {fileID: 5854770222984157075}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &310589267
 GameObject:
   m_ObjectHideFlags: 0
@@ -1055,7 +1061,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100042, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400050, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1105,6 +1111,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.x
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 11677bbda62f3094f805beef857b2d5d, type: 2}
     - target: {fileID: 11400002, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -1163,7 +1173,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1685787701}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12c91ff843e48eb46aadac3641c74426, type: 3}
   m_Name: 
@@ -1597,7 +1607,7 @@ PrefabInstance:
     - target: {fileID: 5854770222567600239, guid: e40cbcea2d2666646a0445e24568c7d4,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5854770222669166685, guid: e40cbcea2d2666646a0445e24568c7d4,
         type: 3}
@@ -1620,7 +1630,7 @@ PrefabInstance:
     - target: {fileID: 278067303, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: vpp
       value: 
-      objectReference: {fileID: 1685787701}
+      objectReference: {fileID: 73487041}
     - target: {fileID: 278067303, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: Cm
       value: 0
@@ -1683,7 +1693,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 278067303, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: personality
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 278067304, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: m_Target

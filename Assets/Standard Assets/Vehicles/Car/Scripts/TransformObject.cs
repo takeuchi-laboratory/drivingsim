@@ -22,6 +22,7 @@ public class TransformObject : MonoBehaviour
     Transform vpptransform; //vppのtransformを格納する変数?
     Quaternion quaternionvpp;
     public GameObject vpp;
+    StreamWriter sw; //csv書き込み用の変数
 
     public float d = 30; //接近距離の閾値
     public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
@@ -104,10 +105,41 @@ public class TransformObject : MonoBehaviour
         vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02f;
         //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         //rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
+
+        // ファイル書き出し
+        // 現在のフォルダにsaveData.csvを出力する(決まった場所に出力したい場合は絶対パスを指定してください)
+        // 引数説明：第1引数→ファイル出力先, 第2引数→ファイルに追記(true)or上書き(false), 第3引数→エンコード
+        sw = new StreamWriter(@"SaveData.csv", false, Encoding.GetEncoding("Shift_JIS"));
+        // ヘッダー出力
+        string[] s1 = { "CarSpeed", "VppSpeed", "VppPositionX", "VppPositionZ", "ボタン" };
+        string s2 = string.Join(",", s1);
+        sw.WriteLine(s2);
+        // StreamWriterを閉じる
+        sw.Close();
+
     }
 
-        // Update is called once per frame
-        void FixedUpdate()
+    // データ出力
+    public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5)
+    {
+        sw = new StreamWriter(@"SaveData.csv", true, Encoding.GetEncoding("Shift_JIS"));
+        string[] s1 = { txt1, txt2, txt3, txt4, txt5 };
+        string s2 = string.Join(",", s1);
+        sw.WriteLine(s2);
+        // StreamWriterを閉じる
+        sw.Close();
+    }
+
+    void Update()//押下されたボタンで丸を示す
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            SaveData("", "", "", "", "○");
+        }
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
         {
         //rigidbodyvpp.velocity.magnitude vppの速度
         //rigidbody.velocity = transform.forward * 1.0f; //carの向いている方向に速度1m/sを与える。こんな感じで速度を出させる
@@ -132,6 +164,8 @@ public class TransformObject : MonoBehaviour
         CarPositionZ = cartransform.position.z;
         VppPositionX = vpptransform.position.x;
         VppPositionZ = vpptransform.position.z;
+
+        SaveData(CarSpeed.ToString(), VppSpeed.ToString(), VppPositionX.ToString(), VppPositionZ.ToString(), "");
 
 
         /*if (Vector3.Dot(cartransform.forward, ) <= cartransform.forward.magnitude * target.magnitude * 0.999
