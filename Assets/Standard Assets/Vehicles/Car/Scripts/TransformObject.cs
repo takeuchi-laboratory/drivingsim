@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Text;
 using System.IO;
 
-//carの全長4.8mくらい
+//carの全長4.8mくらい、先端に座標がある
 //vppの座標から後ろまで2.7mくらい、前まで2.5mくらい
 //車間距離　= unityで設定した距離-7.3
 //0.02秒で(40/3.6)*0.02m　移動すれば時速40kmと同じになるはず
@@ -80,11 +80,12 @@ public class TransformObject : MonoBehaviour
     int countsuddenbraking, countsafetime2 ;
     int countD;
 
-    public int personality; //0…普通 3…悪い
+    public int BC; //BehavioralCharacteristics;   //1…運転良安全良  2…運転良安全悪 3…運転悪安全良　4…運転悪安全悪
 
     
     bool CarisFront; //0なら自動運転車が後ろ、1なら前
     bool CarisRight; //0ならCarが左、1なら右
+    bool Boikoshi, Boikoshi2;
 
     // Start is called before the first frame update
     void Start()
@@ -97,12 +98,12 @@ public class TransformObject : MonoBehaviour
         rigidbody = this.GetComponent<Rigidbody>();
         rigidbodyvpp = vpp.GetComponent<Rigidbody>();
         prerotationvpp = quaternionvpp.eulerAngles.y;
-        prevelocityvpp = rigidbodyvpp.velocity.magnitude;
+        //prevelocityvpp = rigidbodyvpp.velocity.magnitude;
         PreCarPositionX = cartransform.position.x;
         PreCarPositionZ = cartransform.position.z;
         PreVppPositionX = vpptransform.position.x;
         PreVppPositionZ = vpptransform.position.z;
-        vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02f;
+        //vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02f;
         //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         //rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
 
@@ -138,6 +139,17 @@ public class TransformObject : MonoBehaviour
         }
     }
 
+    private void OnGUI()
+    {
+        GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
+        GUI.Label(new Rect(0, 200, 500, 100), "BlueCarCm" + Cm.ToString());
+        GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCo" + Co.ToString());
+        GUI.Label(new Rect(0, 240, 500, 100), "Add1" + Add1.ToString());
+        GUI.Label(new Rect(0, 260, 500, 100), "Add4" + Add4.ToString());
+        //GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
+        //GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
+    }
+
     // Update is called once per frame
     void FixedUpdate()
         {
@@ -165,7 +177,7 @@ public class TransformObject : MonoBehaviour
         VppPositionX = vpptransform.position.x;
         VppPositionZ = vpptransform.position.z;
 
-        SaveData(CarSpeed.ToString(), VppSpeed.ToString(), VppPositionX.ToString(), VppPositionZ.ToString(), "");
+        //SaveData(CarSpeed.ToString(), VppSpeed.ToString(), VppPositionX.ToString(), VppPositionZ.ToString(), "");
 
 
         /*if (Vector3.Dot(cartransform.forward, ) <= cartransform.forward.magnitude * target.magnitude * 0.999
@@ -186,9 +198,15 @@ public class TransformObject : MonoBehaviour
 
         if (DrivingMode == 0)
         {
-
+            
+            //Debug.Log("回転寿司");
             if (CarisFront == true)  //エージェントの車が前の時
             {
+                if(VppPositionX > 145)
+                {
+                    Boikoshi = CarisFront;
+                }
+                //Debug.Log("回転寿司");
                 if (dis <= d)        //車間距離が閾値より短い
                 {
                     t1 = t1 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)          
@@ -236,8 +254,22 @@ public class TransformObject : MonoBehaviour
             }
             else if (CarisFront == false)    //エージェントの車が後ろの時
             {
-                if (VppSpeed_ms < BaseSpeed_ms)
+                if(VppPositionX < 143.8 && VppPositionX >142)
                 {
+                    Boikoshi2 = CarisFront;
+                    if(Boikoshi != Boikoshi2)
+                    {
+                        Add1 = 0;
+                        Add4 = 0;
+                        t3 = 0;
+                        t5 = 0;
+                        con3 = 0;
+                        con5 = 0;
+                        Boikoshi = Boikoshi2;
+                    }
+                }
+                if (VppSpeed_ms < BaseSpeed_ms)
+                { 
                     if (dis < 30f)
                     {
                         t3 = t3 + 0.02f;
@@ -378,8 +410,8 @@ public class TransformObject : MonoBehaviour
             //cartransform.Translate(0, 0, (40 / 3.6f ) * 0.02f);
 
             //Debug.Log(Math.Abs(PreCarPositionZ - cartransform.position.z) * 3.6 / 0.02);
-            Debug.Log("Agentの速度:" + CarSpeed + "km/h");
-            Debug.Log("Vppの速度:" + VppSpeed + "km/h");
+            //Debug.Log("Agentの速度:" + CarSpeed + "km/h");
+            //Debug.Log("Vppの速度:" + VppSpeed + "km/h");
             //Debug.Log("carの速度" + rigidbody.velocity.magnitude*3.6 + "km/h");    //速さの出力
             //Debug.Log("Cmの値" + Cm);
             
@@ -390,6 +422,10 @@ public class TransformObject : MonoBehaviour
             //Debug.Log("carのz座標:" + transform.position.z);
             //Debug.Log("vppのz座標:" + vpp.transform.position.z);
             //Debug.Log("vppの速度" + rigidbodyvpp.velocity.magnitude + "m/s");
+
+
+
+
             //Debug.Log($"正面:{forward}");
             prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
             
@@ -501,8 +537,8 @@ public class TransformObject : MonoBehaviour
                     pass_N = 1;
 
                 }
-                Debug.Log("Agentの速度:" + CarSpeed + "km/h");
-                Debug.Log("Vppの速度:" + VppSpeed + "km/h");
+                //Debug.Log("Agentの速度:" + CarSpeed + "km/h");
+                //Debug.Log("Vppの速度:" + VppSpeed + "km/h");
 
             }
 
@@ -597,8 +633,8 @@ public class TransformObject : MonoBehaviour
                     pass_N = 4;
 
                 }
-                Debug.Log("Agentの速度:" + CarSpeed + "km/h");
-                Debug.Log("Vppの速度:" + VppSpeed + "km/h");
+               // Debug.Log("Agentの速度:" + CarSpeed + "km/h");
+               // Debug.Log("Vppの速度:" + VppSpeed + "km/h");
 
             }
 
@@ -646,8 +682,8 @@ public class TransformObject : MonoBehaviour
                     pass_N = 2;
 
                 }
-                Debug.Log("Agentの速度:" + CarSpeed + "km/h");
-                Debug.Log("Vppの速度:" + VppSpeed + "km/h");
+                //Debug.Log("Agentの速度:" + CarSpeed + "km/h");
+                //Debug.Log("Vppの速度:" + VppSpeed + "km/h");
 
             }
 
@@ -657,6 +693,11 @@ public class TransformObject : MonoBehaviour
                 t5 = 0;
                 Add2 = 0;
                 Add3 = 0;
+                Add4 = 0;
+                Add5 = 0;
+                Add1 = 0;
+                Add6 = 0;
+                cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
                 Debug.Log("追い越し官僚");
                 
                 pass_N = 0;
@@ -869,96 +910,189 @@ public class TransformObject : MonoBehaviour
     void CalucSpeedAndAcceleration()
     {
         VppSpeed = (float)Math.Sqrt((float)Math.Pow((vpptransform.position.z - PreVppPositionZ), 2) + (float)Math.Pow((vpptransform.position.x - PreVppPositionX), 2)) * 3.6f / time; ;
-        VppSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreVppPositionZ - cartransform.position.z), 2) + (float)Math.Pow((PreVppPositionX - vpptransform.position.x), 2)) / time;
+        VppSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreVppPositionZ - vpptransform.position.z), 2) + (float)Math.Pow((PreVppPositionX - vpptransform.position.x), 2)) / time;
         CarSpeed = (float)Math.Sqrt((float)Math.Pow((cartransform.position.z - PreCarPositionZ),2) + (float)Math.Pow((cartransform.position.x - PreCarPositionX),2)) * 3.6f / time;
         CarSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreCarPositionZ - cartransform.position.z), 2) + (float)Math.Pow((PreCarPositionX - cartransform.position.x), 2)) / time;
-        vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / time;
+        //vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / time;
     }
 
-    float fv(float Co, float Cm, float Qv, float Pv, float distance)    //Qv…自分 Pv…相手
+    //BehavioralCharacteristics
+    float fv(float Co, float Cm, float Qv, float Pv, float distance)    //Qv…自分km/h Pv…相手km/h
     {
-        if (VppPositionX > 145 && CarSpeed > 40 && CarisFront == true)
+
+        if (CarisFront == true)  //自分が前
         {
-            return -2.0f;
-        } else if (VppPositionX > 145 && CarSpeed <= 40 && CarisFront == true)
-        {
-            return 0f;
+            if (VppPositionX > 147 && CarSpeed > 40)
+            {
+                return -2.0f;
+            }
+            else if (VppPositionX > 147 && CarSpeed <= 40)
+            {
+                return 2.0f;
+            } 
+
+            else if ((Co <= CoLine || Cm <= CmLine) && Qv > BaseSpeed_kmh)
+            {
+                return -2.0f;
+            }
+            else if ((Co <= CoLine || Cm <= CmLine) && Qv < BaseSpeed_kmh)
+            {
+                return 2.0f;
+            }
+            else if ((Co <= CoLine || Cm <= CmLine) && Qv == BaseSpeed_kmh)
+            {
+                return 0;
+            }
+
+            else if (Co > CoLine)
+            {
+                if (BC == 1 || BC == 3)
+                {
+                    if (Qv < 60)
+                    {
+                        return 2.0f;
+                    }
+                    else
+                    {
+                        return 0f;
+                    }
+                }
+                else if (BC == 2 || BC == 4)
+                {
+                    if (Qv > 30)
+                    {
+                        return -2.0f;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                } else
+                {
+                    return 0;
+                }
+            }
+
+            else if (Cm > CmLine)
+            {
+                if ((BC == 1 || BC == 3))
+                {
+                    if (Qv < 60)
+                    {
+                        return 2.0f;
+                    }
+                    else
+                    {
+                        return 0f;
+                    }
+                }
+                else if (BC == 2)
+                {
+                    DrivingMode = 2;
+                    return 0;
+                }
+                else if (BC == 4)
+                {
+                    if (Qv > 30)
+                    {
+                        return -9.0f;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                } else
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return 0;
+            }
         }
-        if (Pv < BaseSpeed_ms && distance < safedistance(Qv) && Qv > safespeed(distance) && (Cm < CmLine || Co < CoLine) && CarisFront == false)
+        else if (CarisFront == false)    //自分が後ろ
         {
-            return safespeed(distance) - Qv / (3.6f * time);
-        }
-        if (Co > CoLine && CarisFront == false && Qv > 0)
-        {
-            return -2.0f;
-        }
-        else if (Co > CoLine && CarisFront == false && Qv == 0)
+            if (Pv < BaseSpeed_ms && distance < safedistance(Qv) && Qv > safespeed(distance) && (Cm < CmLine || Co < CoLine))
+            {
+                return safespeed(distance) - Qv / (3.6f * time);
+            }
+            
+            else if (Co > CoLine)
+            {
+                if (BC == 3 || BC == 4 || BC == 1)
+                {
+                    if (Pv < Qv)
+                    {
+                        return -2.0f;
+                    }
+                    else
+                    {
+                        return 2.0f;
+                    }
+                }
+                else if (BC == 2)
+                {
+                    if (Qv < Pv + 5 && distance > 10)
+                    {
+                        return 2.0f;
+                    }
+                    else if (distance <= 10)
+                    {
+                        return -5.0f;
+                    } else
+                    {
+                        return 0f;
+                    }
+                } else
+                {
+                    return 0f;
+                }
+            }
+            else if (Cm > CmLine)
+            {
+                if (BC == 1)
+                {
+                    DrivingMode = 1;
+                    return 0;
+                }
+                else if (BC == 3 || BC == 4)
+                {
+                    if (Pv < Qv)
+                    {
+                        return -2.0f;
+                    }
+                    else
+                    {
+                        return 2.0f;
+                    }
+                }
+                else if (BC == 2)
+                {
+                    if (Qv < Pv + 5 && distance > 20)
+                    {
+                        return 2.0f;
+                    }
+                    else if (distance <= 10)
+                    {
+                        return -5.0f;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                } else
+                {
+                    return 0;
+                }
+            } else
+            {
+                return 0;
+            }
+        } else
         {
             return 0;
-        }
-        else if (Co > CoLine && CarisFront == true && Qv < MaxSpeed_kmh)
-        {
-            return 2.0f;
-        }
-        else if (Co > CoLine && CarisFront == true && Qv == MaxSpeed_kmh)
-        {
-            return 0;
-        }
-        else if (Cm > CmLine && CarisFront == true && Qv < MaxSpeed_kmh)
-        {
-            return 2.0f;
-        }
-        else if (Cm > CmLine && CarisFront == true && Qv == MaxSpeed_kmh)
-        {
-            return 0;
-        }
-        else if(Co > CoLine && CarisFront == true && personality == 3 && Qv > 30)
-        {
-            return -2.0f;
         } 
-        else if(Cm > CmLine && CarisFront == true && personality == 3 && Qv >30)
-        {
-            return -9.0f;
-        }
-        else if (Cm > CmLine && CarisFront == false)
-        {
-            DrivingMode = 1;
-            return 0;
-        }
-        else if ((Co > CoLine || Cm > CmLine)  && CarisFront == false && personality == 3 && Qv < Pv + 5 && distance > 5)
-        {
-            return 2.0f;
-        }
-        else if (Co > CoLine && CarisFront == false && personality == 3 && distance <= 5 && Qv > Pv)
-        {
-            return -5.0f;
-        }
-        else if (Co > CoLine && CarisFront == false && personality == 3 && Qv <= Pv)
-        {
-            return 2.0f;
-        }
-        else if(Cm > CmLine && CarisFront == false && personality == 3 && distance <= 5)
-        {
-            return -5.0f;
-        }
-        
-        else if ((Co <= CoLine || Cm <= CmLine) && Qv > BaseSpeed_kmh)
-        {
-            return -2.0f;
-        }
-        else if ((Co <= CoLine || Cm <= CmLine) && Qv < BaseSpeed_kmh)
-        {
-            return 2.0f;
-        }
-        else if ((Co <= CoLine || Cm <= CmLine) && Qv == BaseSpeed_kmh)
-        {
-            return 0;
-        }
-        
-        else
-        {
-            return 0;
-        }
     }
 
     float safedistance(float v)
