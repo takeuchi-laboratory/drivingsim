@@ -8,8 +8,9 @@ using System.Text;
 using System.IO;
 
 //carの全長4.8mくらい、先端に座標がある
-//vppの座標から後ろまで2.7mくらい、前まで2.5mくらい
-//車間距離　= unityで設定した距離-7.3
+//vppの座標中心2.6m
+//car前vpp後ろの時、車間距離　= unityで設定した距離-7.3 vppとの時
+//車間距離 = unityで設定した距離 - 4.8
 //0.02秒で(40/3.6)*0.02m　移動すれば時速40kmと同じになるはず
 //x = 143が片側二車線の道路の左車線の真ん中
 //x = 147.75が片側二車線の道路の右車線の真ん中
@@ -54,7 +55,7 @@ public class TransformObject : MonoBehaviour
     float Sub4, Sub5, Sub6;
     float PreCarPositionX, PreCarPositionZ;  //前回のエージェントの座標
     float PreVppPositionX, PreVppPositionZ;  //前回の人の座標
-    float CarPositionX, CarPositionZ;  //今のエージェントの座標
+    [System.NonSerialized] public float CarPositionX, CarPositionZ;  //今のエージェントの座標
     float VppPositionX, VppPositionZ;  //今の人の座標
     float G_sum;    //一秒間のずれの合計
     float G_Cm = 0.5f;      //ずれの閾値Cm
@@ -69,8 +70,8 @@ public class TransformObject : MonoBehaviour
     Vector3 pos;
     Vector3 target;
 
-    float VppSpeed, VppSpeed_ms;
-    float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
+    [System.NonSerialized] public float VppSpeed, VppSpeed_ms;
+    [System.NonSerialized] public float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
     int DrivingMode = 0;
     int pass_N = 0; //追い越しの状態遷移
     int pass_N2 = 0;    //蛇行の状態遷移
@@ -79,6 +80,7 @@ public class TransformObject : MonoBehaviour
     int countreachtime,countsafetime;
     int countsuddenbraking, countsafetime2 ;
     int countD;
+    int oikoshikenchi = 0;
 
     public int BC; //BehavioralCharacteristics;   //1…運転良安全良  2…運転良安全悪 3…運転悪安全良　4…運転悪安全悪
 
@@ -139,7 +141,7 @@ public class TransformObject : MonoBehaviour
         }
     }
 
-    private void OnGUI()
+    /*private void OnGUI()
     {
         GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
         GUI.Label(new Rect(0, 200, 500, 100), "BlueCarCm" + Cm.ToString());
@@ -148,7 +150,7 @@ public class TransformObject : MonoBehaviour
         GUI.Label(new Rect(0, 260, 500, 100), "Add4" + Add4.ToString());
         //GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
         //GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
-    }
+    }*/
 
     // Update is called once per frame
     void FixedUpdate()
@@ -266,6 +268,7 @@ public class TransformObject : MonoBehaviour
                         con3 = 0;
                         con5 = 0;
                         Boikoshi = Boikoshi2;
+                        oikoshikenchi = 0;
                     }
                 }
                 if (VppSpeed_ms < BaseSpeed_ms)
@@ -427,7 +430,7 @@ public class TransformObject : MonoBehaviour
 
 
             //Debug.Log($"正面:{forward}");
-            prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
+            //prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
             
 
 
@@ -816,6 +819,7 @@ public class TransformObject : MonoBehaviour
             {
                 targetX1 = 145f;
                 targetZ1 = CarPositionZ + 10f;
+                cartransform.Translate(0, 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f);
                 pass_N2 = 1;
                 
             } else if(pass_N2 == 1)
@@ -824,6 +828,12 @@ public class TransformObject : MonoBehaviour
                 {
                     targetX1 = 143f;
                     targetZ1 = CarPositionZ + 10f;
+                    target = new Vector3(targetX1 - cartransform.position.x, 0, targetZ1 - cartransform.position.z);
+                    float t, tx, tz;
+                    t = target.magnitude;
+                    tx = targetX1 - cartransform.position.x;
+                    tz = targetZ1 - cartransform.position.z;
+                    cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (float)Math.Abs(tx / t), 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (float)Math.Abs(tz / t));
                     pass_N2 = 3;
                 }
                 else
@@ -922,12 +932,14 @@ public class TransformObject : MonoBehaviour
 
         if (CarisFront == true)  //自分が前
         {
-            if (VppPositionX > 147 && CarSpeed > 40)
+            if (VppPositionX > 147 && CarSpeed > 40)    //他の車が右車線にいる(追い越しをしようとしている)とき、速度を40km/hになるようにする
             {
+                oikoshikenchi = 1;
                 return -2.0f;
             }
-            else if (VppPositionX > 147 && CarSpeed <= 40)
+            else if (VppPositionX > 147 && CarSpeed <= 40)  
             {
+                oikoshikenchi = 1;
                 return 2.0f;
             } 
 
@@ -983,7 +995,7 @@ public class TransformObject : MonoBehaviour
                     }
                     else
                     {
-                        return 0f;
+                        return -2.0f;
                     }
                 }
                 else if (BC == 2)
@@ -1021,7 +1033,17 @@ public class TransformObject : MonoBehaviour
             {
                 return safespeed(distance) - Qv / (3.6f * time);
             }
-            
+            else if (VppPositionX > 147 && CarSpeed > 40)
+            {
+                //oikoshikenchi = 1;
+                return -2.0f;
+            }
+            else if (VppPositionX > 147 && CarSpeed <= 40)
+            {
+                //oikoshikenchi = 1;
+                return 2.0f;
+            }
+
             else if (Co > CoLine)
             {
                 if (BC == 3 || BC == 4 || BC == 1)
@@ -1037,14 +1059,15 @@ public class TransformObject : MonoBehaviour
                 }
                 else if (BC == 2)
                 {
-                    if (Qv < Pv + 5 && distance > 10)
+                    if (Qv < Pv + 5 && distance > 20)
                     {
                         return 2.0f;
                     }
                     else if (distance <= 10)
                     {
                         return -5.0f;
-                    } else
+                    } 
+                    else
                     {
                         return 0f;
                     }
@@ -1077,7 +1100,7 @@ public class TransformObject : MonoBehaviour
                     {
                         return 2.0f;
                     }
-                    else if (distance <= 10)
+                    else if (distance <= 10 && oikoshikenchi != 1)
                     {
                         return -5.0f;
                     }

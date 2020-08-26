@@ -426,7 +426,7 @@ public class TransformObject2 : MonoBehaviour
 
 
             //Debug.Log($"正面:{forward}");
-            prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
+            //prevelocityvpp = rigidbodyvpp.velocity.magnitude;   //前のvppの速度の更新
             
 
 
