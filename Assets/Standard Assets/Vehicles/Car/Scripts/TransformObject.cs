@@ -993,13 +993,17 @@ public class TransformObject : MonoBehaviour
                 }
                 else if (BC == 4)
                 {
-                    if (Qv > 30)
+                    if (Qv > 40)
                     {
                         return -9.0f;
                     }
+                    else if(Qv < 30)
+                    {
+                        return 2.0f;
+                    }
                     else
                     {
-                        return 0;
+                        return -9.0f;
                     }
                 } else
                 {
