@@ -37,11 +37,14 @@ public class TransformObject : MonoBehaviour
     public float a6 = 20, b6 = 1;
     public float CoLine = 1.4f; //Coの閾値
     public float CmLine = 1.4f; //Cmの閾値
+    public float Co;
+    public float Cm;
+    [System.NonSerialized] public float dis;
     [System.NonSerialized] public float BaseSpeed_ms;   //carの基本速度(m/s) unity上ではm/sで速度を与える必要がある
     [System.NonSerialized] public float MaxSpeed_ms;    //carの最高速度(m/s)
     //[System.NonSerialized] public float SlowSpeed_ms;   //vppが遅いときの閾値(m/s)
-    [System.NonSerialized] public float Cm, Cm1, Cm2;
-    [System.NonSerialized] public float Co, Co1, Co2;
+    [System.NonSerialized] public float Cm1, Cm2;
+    [System.NonSerialized] public float Co1, Co2;
     float time = 0.02f;
     float t1, t2, t3, t4, t5, t6;    //距離が閾値未満になった継続時間
     float con1, con2, con3, con4, con5, con6;
@@ -72,7 +75,7 @@ public class TransformObject : MonoBehaviour
     Vector3 pos;
     Vector3 target;
 
-    [System.NonSerialized] public float VppSpeed, VppSpeed_ms;
+    [System.NonSerialized] public float VppSpeed, VppSpeed_ms, PreVppSpeed_ms;
     [System.NonSerialized] public float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
     [System.NonSerialized] public int DrivingMode = 0;
     int pass_N = 0; //追い越しの状態遷移
@@ -110,38 +113,17 @@ public class TransformObject : MonoBehaviour
         //vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02f;
         //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         //rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
-
-        // ファイル書き出し
-        // 現在のフォルダにsaveData.csvを出力する(決まった場所に出力したい場合は絶対パスを指定してください)
-        // 引数説明：第1引数→ファイル出力先, 第2引数→ファイルに追記(true)or上書き(false), 第3引数→エンコード
-        sw = new StreamWriter(@"SaveData.csv", false, Encoding.GetEncoding("Shift_JIS"));
-        // ヘッダー出力
-        string[] s1 = { "CarSpeed", "VppSpeed", "VppPositionX", "VppPositionZ", "ボタン" };
-        string s2 = string.Join(",", s1);
-        sw.WriteLine(s2);
-        // StreamWriterを閉じる
-        sw.Close();
-
     }
 
-    // データ出力
-    public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5)
-    {
-        sw = new StreamWriter(@"SaveData.csv", true, Encoding.GetEncoding("Shift_JIS"));
-        string[] s1 = { txt1, txt2, txt3, txt4, txt5 };
-        string s2 = string.Join(",", s1);
-        sw.WriteLine(s2);
-        // StreamWriterを閉じる
-        sw.Close();
-    }
 
-    void Update()//押下されたボタンで丸を示す
+
+    /*void Update()//押下されたボタンで丸を示す
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
             SaveData("", "", "", "", "○");
         }
-    }
+    }*/
 
     /*private void OnGUI()
     {
@@ -161,13 +143,13 @@ public class TransformObject : MonoBehaviour
         //rigidbody.velocity = transform.forward * 1.0f; //carの向いている方向に速度1m/sを与える。こんな感じで速度を出させる
         float carpos = cartransform.position.z;    //carの位置
         float vpppos = vpptransform.position.z;    //vppの位置
-        float dis = (float)Math.Abs(carpos - vpppos);   //車間距離の絶対値
+        dis = (float)Math.Abs(carpos - vpppos);   //車間距離の絶対値
         CheckPosition();
         CalucGap();
         CalucSpeedAndAcceleration();
         quaternionvpp = vpp.transform.rotation;
         //Debug.Log("車間距離:" + dis);
-        carspeed = CarSpeed.ToString();
+        
 
         
 
@@ -175,13 +157,14 @@ public class TransformObject : MonoBehaviour
         PreCarPositionZ = cartransform.position.z;
         PreVppPositionX = vpptransform.position.x;
         PreVppPositionZ = vpptransform.position.z;
+        PreVppSpeed_ms = VppSpeed_ms;
 
         CarPositionX = cartransform.position.x;
         CarPositionZ = cartransform.position.z;
         VppPositionX = vpptransform.position.x;
         VppPositionZ = vpptransform.position.z;
 
-        //SaveData(CarSpeed.ToString(), VppSpeed.ToString(), VppPositionX.ToString(), VppPositionZ.ToString(), "");
+
 
 
         /*if (Vector3.Dot(cartransform.forward, ) <= cartransform.forward.magnitude * target.magnitude * 0.999
@@ -543,7 +526,7 @@ public class TransformObject : MonoBehaviour
             {
                 //targetX1 = VppPositionX;
                 targetX1 = 143f;
-                targetZ1 = VppPositionZ + 15f;
+                targetZ1 = VppPositionZ + 25f;
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
@@ -671,7 +654,7 @@ public class TransformObject : MonoBehaviour
 
         if(DrivingMode == 2)    //蛇行運転
         {
-            if(pass_N2 == 0)
+            if(pass_N2 == 0)    //右側に
             {
                 targetX1 = 145f;
                 targetZ1 = CarPositionZ + 10f;
@@ -779,7 +762,7 @@ public class TransformObject : MonoBehaviour
         VppSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreVppPositionZ - vpptransform.position.z), 2) + (float)Math.Pow((PreVppPositionX - vpptransform.position.x), 2)) / time;
         CarSpeed = (float)Math.Sqrt((float)Math.Pow((cartransform.position.z - PreCarPositionZ),2) + (float)Math.Pow((cartransform.position.x - PreCarPositionX),2)) * 3.6f / time;
         CarSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreCarPositionZ - cartransform.position.z), 2) + (float)Math.Pow((PreCarPositionX - cartransform.position.x), 2)) / time;
-        //vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / time;
+        vppacceleration = (PreVppSpeed_ms - VppSpeed_ms) / time;
     }
 
     //BehavioralCharacteristics
@@ -915,8 +898,9 @@ public class TransformObject : MonoBehaviour
 
         else if (CarisFront == false)    //自分が後ろ
         {
-            if (Pv < BaseSpeed_ms && distance < safedistance(Qv) && Qv > safespeed(distance) && (Cm < CmLine || Co < CoLine))
+            if (Pv < BaseSpeed_ms && distance < safedistance(Qv) && Qv > safespeed(distance) /*&& (Cm < CmLine || Co < CoLine)*/)
             {
+                Debug.Log("安全距離にします");
                 return safespeed(distance) - Qv / (3.6f * time);
             }
             
