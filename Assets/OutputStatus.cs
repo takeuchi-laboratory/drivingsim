@@ -52,7 +52,7 @@ public class OutputStatus : MonoBehaviour
         // ファイル書き出し
         // 現在のフォルダにsaveData.csvを出力する(決まった場所に出力したい場合は絶対パスを指定してください)
         // 引数説明：第1引数→ファイル出力先, 第2引数→ファイルに追記(true)or上書き(false), 第3引数→エンコード
-        sw = new StreamWriter(@"SaveData11_.csv", false, Encoding.GetEncoding("Shift_JIS"));
+        sw = new StreamWriter(@"SaveData.csv", false, Encoding.GetEncoding("Shift_JIS"));
         // ヘッダー出力
         string[] s1 = { "time" ,"BlueCarCo", "BlueCarCm", "GreenCarCo", "GreenCarCm", "BlueCarSpeed", "BlueCarPositionX", "BlueCarPositionZ", "GreenCarSpeed", "GreenCarPositionX", "GreenCarPositionZ","distance", "ボタン" };
         string s2 = string.Join(",", s1);
@@ -64,7 +64,7 @@ public class OutputStatus : MonoBehaviour
     // データ出力
     public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8, string txt9, string txt10, string txt11, string txt12, string txt13)
     {
-        sw = new StreamWriter(@"SaveData11_.csv", true, Encoding.GetEncoding("Shift_JIS"));
+        sw = new StreamWriter(@"SaveData.csv", true, Encoding.GetEncoding("Shift_JIS"));
         string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13 };
         string s2 = string.Join(",", s1);
         sw.WriteLine(s2);
@@ -113,7 +113,8 @@ public class OutputStatus : MonoBehaviour
         dis = to.dis;
 
         timeleft -= Time.deltaTime;
-        if (timeleft <= 0.0)
+        SaveData(time.ToString(), pCo.ToString(), pCm.ToString(), qCo.ToString(), qCm.ToString(), BlueCarSpeed.ToString(), BlueCarPositionX.ToString(), BlueCarPositionZ.ToString(), GreenCarSpeed.ToString(), GreenCarPositionX.ToString(), GreenCarPositionZ.ToString(), dis.ToString(), "on");
+        /*if (timeleft <= 0.0)
         {
             timeleft = 1.0f;
             //csv書き出し
@@ -126,6 +127,6 @@ public class OutputStatus : MonoBehaviour
                 SaveData(time.ToString(), pCo.ToString(), pCm.ToString(), qCo.ToString(), qCm.ToString(), BlueCarSpeed.ToString(), BlueCarPositionX.ToString(), BlueCarPositionZ.ToString(), GreenCarSpeed.ToString(), GreenCarPositionX.ToString(), GreenCarPositionZ.ToString(), dis.ToString(),  "off");
             }
             time += 1;
-        }
+        }*/
     }
 }

@@ -396,7 +396,7 @@ public class TransformObject : MonoBehaviour
 
 
             //rigidbody.velocity = transform.forward * (BaseSpeed_ms);
-            cartransform.Translate(0, 0, (BaseSpeed_ms + (f * time)) * time);    //ここで座標の移動を行っている
+            cartransform.Translate(0, 0, ( (BaseSpeed_ms + (f * time))) * time);    //ここで座標の移動を行っている
 
             //cartransform.Translate(0, 0, (40 / 3.6f ) * 0.02f);
 
@@ -450,7 +450,7 @@ public class TransformObject : MonoBehaviour
                 t = target.magnitude;
                 tx = targetX1 - cartransform.position.x;
                 tz = targetZ1 - cartransform.position.z;
-                cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * Math.Abs(tz / t));
+                cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
                 //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
 
                 //Debug.Log("f1:" + f1);
@@ -497,7 +497,7 @@ public class TransformObject : MonoBehaviour
                 tx = targetX1 - cartransform.position.x;
                 tz = targetZ1 - cartransform.position.z;
                 //cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tz / t));
-                cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
+                cartransform.Translate(0, 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f);
                 //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
                 pos = cartransform.position;
                 //Debug.Log("エージェント" + transform.position.z);
@@ -545,7 +545,7 @@ public class TransformObject : MonoBehaviour
                 t = target.magnitude;
                 tx = targetX1 - cartransform.position.x;
                 tz = targetZ1 - cartransform.position.z;
-                cartransform.Translate(-(40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * (float)Math.Abs(tz / t));
+                cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
                 //cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
                 //rigidbody.velocity = transform.forward * (BaseSpeed_ms + f * time);
                 pos = cartransform.position;
@@ -581,7 +581,7 @@ public class TransformObject : MonoBehaviour
                 Add5 = 0;
                 Add1 = 0;
                 Add6 = 0;
-                cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
+                cartransform.Translate(0, 0, (f * 0.02f) * 0.02f);
                 Debug.Log("追い越し官僚");
                 
                 pass_N = 0;
@@ -595,11 +595,11 @@ public class TransformObject : MonoBehaviour
                 if (dis < safedistance(VppSpeed))
                 {
                     f -= 2.0f;
-                    cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
+                    cartransform.Translate(0, 0, (f * 0.02f) * 0.02f);
                 }
                 else
                 {
-                    cartransform.Translate(0, 0, (40 / 3.6f + (f * 0.02f)) * 0.02f);
+                    cartransform.Translate(0, 0, (f * 0.02f) * 0.02f);
                     pass_N = 5;
                     //f = 0;
                 }
@@ -630,7 +630,7 @@ public class TransformObject : MonoBehaviour
                     t = target.magnitude;
                     tx = targetX1 - cartransform.position.x;
                     tz = targetZ1 - cartransform.position.z;
-                    cartransform.Translate((40 / 3.6f + (f * 0.02f)) * 0.02f * (tx / t), 0, (40 / 3.6f + (f * 0.02f)) * 0.02f * (tz / t));
+                    cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
                     //rigidbody.velocity = transform.forward * (CarSpeed_ms + f * time);
                     //Debug.Log("エージェント" + transform.position.z);
                     //Debug.Log("人" + PreVppPositionZ);
@@ -898,11 +898,12 @@ public class TransformObject : MonoBehaviour
 
         else if (CarisFront == false)    //自分が後ろ
         {
-            if (Pv < BaseSpeed_ms && distance < safedistance(Qv) && Qv > safespeed(distance) /*&& (Cm < CmLine || Co < CoLine)*/)
+            if (Pv < BaseSpeed_kmh && distance < safedistance(Qv) && Qv > safespeed(distance) && (BC == 1 || BC == 3 || BC == 4 || (BC == 2 && Co<CoLine && Cm<CmLine) ))
             {
                 Debug.Log("安全距離にします");
-                return safespeed(distance) - Qv / (3.6f * time);
-            }
+                return Mathf.Clamp((distance) - Qv / (3.6f * time), -9.0f, 2.0f);
+                //return safespeed(distance) - Qv / (3.6f * time);
+            } 
             
             else if (VppPositionX > 147 && CarSpeed > 40)
             {
@@ -959,6 +960,7 @@ public class TransformObject : MonoBehaviour
                 {
                     if (Pv < Qv)
                     {
+                        Debug.Log("ちょっと下げる");
                         return -2.0f;
                     }
                     else
@@ -1006,11 +1008,13 @@ public class TransformObject : MonoBehaviour
 
     float safedistance(float v)
     {
-        return v - 15 + 7.3f;    //時速 - 15で安全な距離、車間距離　= unityで設定した距離-7.3　なので7.3をプラスした
+        return v - 15 + 4.7f;
+            
+                //時速 - 15で安全な距離、車間距離　= unityで設定した距離-7.3　なので7.3をプラスした
     }
     float safespeed(float d)
     {
-        return d + 15 - 7.3f;
+        return d + 15 - 4.7f;
     }
 }
 //Vector3.Angle(from, to)   2点間の角度  0~180度のfloatが得られる
