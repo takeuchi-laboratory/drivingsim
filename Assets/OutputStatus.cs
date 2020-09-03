@@ -6,6 +6,7 @@ using System.IO;
 
 public class OutputStatus : MonoBehaviour
 {
+    public int mode;   //mode == 0…モデル同士　mode == 1…モデルと人
     StreamWriter sw;
     float timeleft;
     GameObject car;
@@ -43,35 +44,56 @@ public class OutputStatus : MonoBehaviour
         GreenCarPositionX = to.VppPositionX;
         GreenCarPositionZ = to.VppPositionZ;
         CarisFront = to.CarisFront;
+        CarisFront2 = to2.CarisFront;
         DrivingMode = to.DrivingMode;
         DrivingMode2 = to2.DrivingMode;
         dis = to.dis;
     }
 
-    // データ出力
-    public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8, string txt9, string txt10, string txt11, string txt12, string txt13)
-    {
-        sw = new StreamWriter(@"SaveData.csv", true, Encoding.GetEncoding("Shift_JIS"));
-        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13 };
-        string s2 = string.Join(",", s1);
-        sw.WriteLine(s2);
-        // StreamWriterを閉じる
-        sw.Close();
-    }
-
     private void OnGUI()
     {
-        GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + BlueCarSpeed.ToString());
-        GUI.Label(new Rect(0, 200, 500, 100), "BlueCarCm" + pCm.ToString());
-        GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCo" + pCo.ToString());
-        GUI.Label(new Rect(0, 240, 500, 100), "BlueCarCo" + CarisFront.ToString());
-        GUI.Label(new Rect(0, 160, 500, 100), "BlueDrivingMode" + DrivingMode.ToString());
-        GUI.Label(new Rect(150, 180, 500, 100), "GreenCarSpeed" + GreenCarSpeed.ToString());
-        GUI.Label(new Rect(150, 200, 500, 100), "GreenCarCm" + qCm.ToString());
-        GUI.Label(new Rect(150, 220, 500, 100), "GreenCarCo" + qCo.ToString());
-        GUI.Label(new Rect(150, 240, 500, 100), "GreenCarCo" + CarisFront2.ToString());
-        GUI.Label(new Rect(150, 160, 500, 100), "GreenDrivingMode" + DrivingMode2.ToString());
-        GUI.Label(new Rect(150, 140, 500, 100), "GreenQB" + QB_s.ToString());
+        if (mode == 0)
+        {
+            
+            GUI.Label(new Rect(0, 160, 500, 100), "BlueCarSpeed " + BlueCarSpeed.ToString());
+            GUI.Label(new Rect(0, 180, 500, 100), "BlueCarPositionX " + BlueCarPositionX.ToString());
+            GUI.Label(new Rect(0, 200, 500, 100), "BlueCarPositionZ " + BlueCarPositionZ.ToString());
+            GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCm " + pCm.ToString());
+            GUI.Label(new Rect(0, 240, 500, 100), "BlueCarCo " + pCo.ToString());
+            GUI.Label(new Rect(0, 260, 500, 100), "BlueDrivingMode " + DrivingMode.ToString());
+            GUI.Label(new Rect(0, 280, 500, 100), "CarisFront " + CarisFront.ToString());
+            
+
+
+            GUI.Label(new Rect(180, 260, 500, 100), "GreenDrivingMode " + DrivingMode2.ToString());
+            GUI.Label(new Rect(180, 160, 500, 100), "GreenCarSpeed " + GreenCarSpeed.ToString());
+            GUI.Label(new Rect(180, 220, 500, 100), "GreenCarCm " + qCm.ToString());
+            GUI.Label(new Rect(180, 240, 500, 100), "GreenCarCo " + qCo.ToString());
+            GUI.Label(new Rect(180, 280, 500, 100), "CarisFront " + CarisFront2.ToString());
+            GUI.Label(new Rect(180, 180, 500, 100), "GreenCarPositionX " + GreenCarPositionX.ToString());
+            GUI.Label(new Rect(180, 200, 500, 100), "GreenCarPositionZ " + GreenCarPositionZ.ToString());
+
+            GUI.Label(new Rect(90, 300, 500, 100), "distance " + dis.ToString());
+        }
+        else if(mode == 1)
+        {
+            GUI.Label(new Rect(0, 160, 500, 100), "BlueCarSpeed " + BlueCarSpeed.ToString());
+            GUI.Label(new Rect(0, 180, 500, 100), "BlueCarPositionX " + BlueCarPositionX.ToString());
+            GUI.Label(new Rect(0, 200, 500, 100), "BlueCarPositionZ " + BlueCarPositionZ.ToString());
+            GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCm " + pCm.ToString());
+            GUI.Label(new Rect(0, 240, 500, 100), "BlueCarCo " + pCo.ToString());
+            GUI.Label(new Rect(0, 260, 500, 100), "BlueDrivingMode " + DrivingMode.ToString());
+            GUI.Label(new Rect(0, 280, 500, 100), "CarisFront " + CarisFront.ToString());
+
+
+            GUI.Label(new Rect(180, 160, 500, 100), "RedCarSpeed " + GreenCarSpeed.ToString());
+            GUI.Label(new Rect(180, 180, 500, 100), "GreenCarPositionX " + GreenCarPositionX.ToString());
+            GUI.Label(new Rect(180, 200, 500, 100), "GreenCarPositionZ " + GreenCarPositionZ.ToString());
+
+            GUI.Label(new Rect(90, 300, 500, 100), "distance " + dis.ToString());
+        }
+
+
 
         //GUI.Label(new Rect(150, 240, 500, 100), "f" + f.ToString());
         //GUI.Label(new Rect(0, 240, 500, 100), "Add1" + Add1.ToString());
@@ -89,13 +111,13 @@ public class OutputStatus : MonoBehaviour
         BlueCarSpeed = to.CarSpeed;
         BlueCarPositionX = to.CarPositionX;
         BlueCarPositionZ = to.CarPositionZ;
-        GreenCarSpeed = to2.CarSpeed;
-        GreenCarPositionX = to2.CarPositionX;
-        GreenCarPositionZ = to2.CarPositionZ;
+        GreenCarSpeed = to.VppSpeed;
+        GreenCarPositionX = to.VppPositionX;
+        GreenCarPositionZ = to.VppPositionZ;
         CarisFront = to.CarisFront;
+        CarisFront2 = to2.CarisFront;
         DrivingMode = to.DrivingMode;
         DrivingMode2 = to2.DrivingMode;
-        QB_s = to2.QB;
         dis = to.dis;
        
     }

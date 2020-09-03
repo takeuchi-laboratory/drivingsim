@@ -103,7 +103,7 @@ public class TransformObject : MonoBehaviour
         cartransform = this.transform;
         vpptransform = vpp.transform;
         rigidbody = this.GetComponent<Rigidbody>();
-        rigidbodyvpp = vpp.GetComponent<Rigidbody>();
+        //rigidbodyvpp = vpp.GetComponent<Rigidbody>();
         prerotationvpp = quaternionvpp.eulerAngles.y;
         //prevelocityvpp = rigidbodyvpp.velocity.magnitude;
         PreCarPositionX = cartransform.position.x;
@@ -354,8 +354,8 @@ public class TransformObject : MonoBehaviour
                     }
                     con4 = con4 + 0.02f;
                 }
-                Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a3 / BaseSpeed_ms) * t3 * b3);
-                Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - rigidbodyvpp.velocity.magnitude) * a4 / BaseSpeed_ms) * t4 * b4);
+                Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * a3 / BaseSpeed_ms) * t3 * b3);
+                Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * a4 / BaseSpeed_ms) * t4 * b4);
                 Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a5 / G_Cm) * t5 * b5);
                 Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a6 / G_Cm) * t6 * b6);
 
