@@ -25,7 +25,7 @@ public class TransformObject : MonoBehaviour
     public GameObject vpp;
     StreamWriter sw; //csv書き込み用の変数
 
-    public float d = 30; //接近距離の閾値
+    public float d = 28; //接近距離の閾値
     public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
     public float MaxSpeed_kmh = 60;      //carの最高速度(km/h)
     //public float SlowSpeed_kmh = 40;    //vppが遅いときの閾値(km/h)
@@ -47,7 +47,7 @@ public class TransformObject : MonoBehaviour
     [System.NonSerialized] public float Co1, Co2;
     float time = 0.02f;
     float t1, t2, t3, t4, t5, t6;    //距離が閾値未満になった継続時間
-    float con1, con2, con3, con4, con5, con6;
+    [System.NonSerialized] public float con1, con2, con3, con4, con5, con6;
     float prevelocityvpp;   //作業用変数 vppの前の速度(急ブレーキ時の加速度を求めるため)
     float prerotationvpp;   //作業用変数　vppの前の角度
     float vppacceleration;        
@@ -233,7 +233,8 @@ public class TransformObject : MonoBehaviour
                     }
                     con2 = con2 + 0.02f;
                 }
-                Add1 = (float)Math.Sqrt((Math.Abs(d - dis) * ad1_p1 / d) * t1 * ad1_p2);
+
+                Add1 = (float)Math.Sqrt((Mathf.Clamp(d - dis,0.5f,d) * ad1_p1 / d) * t1 * ad1_p2);
                 Sub1 = t2 * sb1_p1;
 
                 Add4 = (float)Math.Sqrt(con1 * ad4_p1);
@@ -244,7 +245,7 @@ public class TransformObject : MonoBehaviour
                 if(Cm > CmLine + 0.01)
                 {
                     oikoshigauge += 0.02f;
-                    if(oikoshigauge > 10)  //追い越しまでの時間変更あり
+                    if(oikoshigauge > 25)  //追い越しまでの時間変更あり
                     {
                         DrivingMode = 1;
                         oikoshigauge = 0;
@@ -326,19 +327,20 @@ public class TransformObject : MonoBehaviour
                     countG = 0;
                     G_sum = 0;
                 }
-                if (vppacceleration >= 9.0f && dis < d)
+                if (vppacceleration <= -8.0f && dis < d+10)
                 {
+                    Debug.Log("急ブレーキ検知");
                     countsuddenbraking += 1;
                     con4 = Mathf.Clamp(con4 - 0.02f, 0, 1000);
                     countsafetime2 = 0;
                 }
-                else if (vppacceleration < 9.0f)
+                else if (vppacceleration > -8.0f)
                 {
-                    if (countsuddenbraking < 50 && countsuddenbraking != 0)
+                    if (countsuddenbraking < 15 && countsuddenbraking != 0)
                     {
                         countsuddenbraking = 0;
                     }
-                    else if (countsuddenbraking >= 50)
+                    else if (countsuddenbraking >= 15)
                     {
                         con3 = con3 + 1;
                         countsuddenbraking = 0;
@@ -346,7 +348,7 @@ public class TransformObject : MonoBehaviour
                     else if (countsuddenbraking == 0)
                     {
                         countsafetime2 += 1;
-                        if (countsafetime2 == 1500)
+                        if (countsafetime2 == 750)
                         {
                             con3 = Mathf.Clamp(con3 - 1, 0, 1000);
                             countsafetime2 = 0;
@@ -354,12 +356,12 @@ public class TransformObject : MonoBehaviour
                     }
                     con4 = con4 + 0.02f;
                 }
-                Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * ad2_p1 / BaseSpeed_ms) * t3 * ad2_p2);
-                Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * sb2_p1 / BaseSpeed_ms) * t4 * sb2_p2);
+                Add2 = (float)Math.Sqrt((Mathf.Clamp((BaseSpeed_ms - VppSpeed_ms),5f , 40) * ad2_p1 / BaseSpeed_ms) * t3 * ad2_p2);
+                Sub2 = (float)Math.Sqrt((Mathf.Clamp((VppSpeed_ms - BaseSpeed_ms),0f, 40) * sb2_p1 / BaseSpeed_ms) * t4 * sb2_p2);
                 Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * ad3_p1 / G_Cm) * t5 * ad3_p2);
                 Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * sb3_p1 / G_Cm) * t6 * sb3_p2);
 
-                Add5 = (float)Math.Sqrt(con3 * ad5_p1 * (float)Math.Abs(vppacceleration - 9.0f) / 9.0f);
+                Add5 = (float)Math.Sqrt(con3 * ad5_p1 );
                 Sub5 = (float)Math.Sqrt(con4 * sb5_p1);
                 Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con5 * ad6_p1);
                 Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6 * sb6_p1);
@@ -762,7 +764,7 @@ public class TransformObject : MonoBehaviour
         VppSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreVppPositionZ - vpptransform.position.z), 2) + (float)Math.Pow((PreVppPositionX - vpptransform.position.x), 2)) / time;
         CarSpeed = (float)Math.Sqrt((float)Math.Pow((cartransform.position.z - PreCarPositionZ),2) + (float)Math.Pow((cartransform.position.x - PreCarPositionX),2)) * 3.6f / time;
         CarSpeed_ms = (float)Math.Sqrt((float)Math.Pow((PreCarPositionZ - cartransform.position.z), 2) + (float)Math.Pow((PreCarPositionX - cartransform.position.x), 2)) / time;
-        vppacceleration = (PreVppSpeed_ms - VppSpeed_ms) / time;
+        vppacceleration = (VppSpeed_ms - PreVppSpeed_ms) / time;
     }
 
     //BehavioralCharacteristics
@@ -794,7 +796,7 @@ public class TransformObject : MonoBehaviour
                     }
                     else
                     {
-                        return 0f;
+                        return -2.0f;
                     }
                 }
                 else if (BC == 2 || BC == 4)

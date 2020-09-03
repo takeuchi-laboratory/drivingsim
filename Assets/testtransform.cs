@@ -16,7 +16,7 @@ public class testtransform : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rigidbody.velocity = new Vector3(0, 0, speed / 3.6f);
+        //rigidbody.velocity = new Vector3(0, 0, speed / 3.6f);
         //rigidbody.velocity = new Vector3(0, 0, 40 / 3.6f);
     }
 }

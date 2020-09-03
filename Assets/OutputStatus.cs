@@ -25,6 +25,7 @@ public class OutputStatus : MonoBehaviour
     int QB_s;
     float dis;
     float time;
+    float con3;
 
 
     // Start is called before the first frame update
@@ -48,6 +49,7 @@ public class OutputStatus : MonoBehaviour
         DrivingMode = to.DrivingMode;
         DrivingMode2 = to2.DrivingMode;
         dis = to.dis;
+        con3 = to.con3;
     }
 
     private void OnGUI()
@@ -91,6 +93,7 @@ public class OutputStatus : MonoBehaviour
             GUI.Label(new Rect(180, 200, 500, 100), "GreenCarPositionZ " + GreenCarPositionZ.ToString());
 
             GUI.Label(new Rect(90, 300, 500, 100), "distance " + dis.ToString());
+            GUI.Label(new Rect(90, 320, 500, 100), "con3 " + con3.ToString());
         }
 
 
@@ -119,6 +122,6 @@ public class OutputStatus : MonoBehaviour
         DrivingMode = to.DrivingMode;
         DrivingMode2 = to2.DrivingMode;
         dis = to.dis;
-       
+        con3 = to.con3;
     }
 }
