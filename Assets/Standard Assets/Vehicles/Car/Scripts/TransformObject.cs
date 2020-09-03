@@ -29,12 +29,12 @@ public class TransformObject : MonoBehaviour
     public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
     public float MaxSpeed_kmh = 60;      //carの最高速度(km/h)
     //public float SlowSpeed_kmh = 40;    //vppが遅いときの閾値(km/h)
-    public float a1 = 50f, b1 = 5f;
-    public float a2 = 1, b2 = 1;
-    public float a3 = 50, b3 = 5; //パラメータ
-    public float a4 = 20, b4 = 1;    //パラメータ
-    public float a5 = 20, b5 = 1;    //パラメータ
-    public float a6 = 20, b6 = 1;
+    public float ad1_p1 = 50f, ad1_p2 = 5f, sb1_p1;
+    public float ad2_p1 = 1, ad2_p2 = 1, sb2_p1 = 1, sb2_p2 = 1;
+    public float ad3_p1 = 50, ad3_p2 = 1, sb3_p1 = 5, sb3_p2 = 1; //パラメータ
+    public float ad4_p1 = 20, sb4_p1 = 1;    //パラメータ
+    public float ad5_p1 = 20, sb5_p1 = 1;    //パラメータ
+    public float ad6_p1 = 20, sb6_p1 = 1;    //パラメータ
     public float CoLine = 1.4f; //Coの閾値
     public float CmLine = 1.4f; //Cmの閾値
     public float Co;
@@ -233,11 +233,11 @@ public class TransformObject : MonoBehaviour
                     }
                     con2 = con2 + 0.02f;
                 }
-                Add1 = (float)Math.Sqrt((Math.Abs(d - dis) * a1 / d) * t1 * b1);
-                Sub1 = t2 * b2;
+                Add1 = (float)Math.Sqrt((Math.Abs(d - dis) * ad1_p1 / d) * t1 * ad1_p2);
+                Sub1 = t2 * sb1_p1;
 
-                Add4 = (float)Math.Sqrt(con1);
-                Sub4 = (float)Math.Sqrt(con2);
+                Add4 = (float)Math.Sqrt(con1 * ad4_p1);
+                Sub4 = (float)Math.Sqrt(con2 * sb4_p1);
             }
             else if (CarisFront == false)    //エージェントの車が後ろの時
             {
@@ -267,7 +267,7 @@ public class TransformObject : MonoBehaviour
                 }
                 if (VppSpeed_ms < BaseSpeed_ms)
                 { 
-                    if (dis < 30f)
+                    if (dis < d)
                     {
                         t3 = t3 + 0.02f;
                         t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
@@ -354,15 +354,15 @@ public class TransformObject : MonoBehaviour
                     }
                     con4 = con4 + 0.02f;
                 }
-                Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * a3 / BaseSpeed_ms) * t3 * b3);
-                Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * a4 / BaseSpeed_ms) * t4 * b4);
-                Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a5 / G_Cm) * t5 * b5);
-                Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * a6 / G_Cm) * t6 * b6);
+                Add2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * ad2_p1 / BaseSpeed_ms) * t3 * ad2_p2);
+                Sub2 = (float)Math.Sqrt((Math.Abs(BaseSpeed_ms - VppSpeed_ms) * sb2_p1 / BaseSpeed_ms) * t4 * sb2_p2);
+                Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * ad3_p1 / G_Cm) * t5 * ad3_p2);
+                Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * sb3_p1 / G_Cm) * t6 * sb3_p2);
 
-                Add5 = (float)Math.Sqrt(con3 * (float)Math.Abs(vppacceleration - 9.0f) / 9.0f);
-                Sub5 = (float)Math.Sqrt(con4);
-                Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con5);
-                Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6);
+                Add5 = (float)Math.Sqrt(con3 * ad5_p1 * (float)Math.Abs(vppacceleration - 9.0f) / 9.0f);
+                Sub5 = (float)Math.Sqrt(con4 * sb5_p1);
+                Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con5 * ad6_p1);
+                Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6 * sb6_p1);
             }
             //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
             Add1 = Mathf.Clamp(Add1, 0, 50f);
