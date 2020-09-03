@@ -4,18 +4,19 @@ using UnityEngine;
 
 public class testtransform : MonoBehaviour
 {
+    public float speed;
     Rigidbody rigidbody;    //car(自動運転車)のrigidbodyを格納する変数?
     // Start is called before the first frame update
     void Start()
     {
         rigidbody = this.GetComponent<Rigidbody>();
-        rigidbody.velocity = new Vector3(0, 0, 40 / 3.6f);
+        rigidbody.velocity = new Vector3(0, 0, speed / 3.6f);
     }
 
     // Update is called once per frame
     void Update()
-    { 
-        
+    {
+        rigidbody.velocity = new Vector3(0, 0, speed / 3.6f);
         //rigidbody.velocity = new Vector3(0, 0, 40 / 3.6f);
     }
 }

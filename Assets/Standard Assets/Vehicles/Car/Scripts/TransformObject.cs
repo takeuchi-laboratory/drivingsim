@@ -657,7 +657,7 @@ public class TransformObject : MonoBehaviour
             if(pass_N2 == 0)    //右側に
             {
                 targetX1 = 145f;
-                targetZ1 = CarPositionZ + 10f;
+                targetZ1 = CarPositionZ + 20f;
                 cartransform.Translate(0, 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f);
                 pass_N2 = 1;
                 
@@ -666,7 +666,7 @@ public class TransformObject : MonoBehaviour
                 if(countD == 3)
                 {
                     targetX1 = 143f;
-                    targetZ1 = CarPositionZ + 10f;
+                    targetZ1 = CarPositionZ + 20f;
                     target = new Vector3(targetX1 - cartransform.position.x, 0, targetZ1 - cartransform.position.z);
                     float t, tx, tz;
                     t = target.magnitude;
@@ -686,7 +686,7 @@ public class TransformObject : MonoBehaviour
                     if (cartransform.position.z >= targetZ1)
                     {
                         targetX1 = 141f;
-                        targetZ1 = CarPositionZ + 10f;
+                        targetZ1 = CarPositionZ + 20f;
                         pass_N2 = 2;
                     }
                 }
@@ -702,7 +702,7 @@ public class TransformObject : MonoBehaviour
                 if (cartransform.position.z >= targetZ1)
                 {
                     targetX1 = 145f;
-                    targetZ1 = CarPositionZ + 10f;
+                    targetZ1 = CarPositionZ + 20f;
                     countD += 1;
                     pass_N2 = 1;
                 }
