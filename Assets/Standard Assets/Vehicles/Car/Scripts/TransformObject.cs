@@ -59,7 +59,7 @@ public class TransformObject : MonoBehaviour
     float PreCarPositionX, PreCarPositionZ;  //前回のエージェントの座標
     float PreVppPositionX, PreVppPositionZ;  //前回の人の座標
     [System.NonSerialized] public float CarPositionX, CarPositionZ;  //今のエージェントの座標
-    float VppPositionX, VppPositionZ;  //今の人の座標
+    [System.NonSerialized] public float VppPositionX, VppPositionZ;  //現在の相手の座標
     float G_sum;    //一秒間のずれの合計
     float G_Cm = 0.5f;      //ずれの閾値Cm
     float G_Co = 1.0f;      //ずれの閾値Co

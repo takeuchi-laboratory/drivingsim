@@ -39,26 +39,13 @@ public class OutputStatus : MonoBehaviour
         BlueCarSpeed = to.CarSpeed;
         BlueCarPositionX = to.CarPositionX;
         BlueCarPositionZ = to.CarPositionZ;
-        GreenCarSpeed = to2.CarSpeed;
-        GreenCarPositionX = to2.CarPositionX;
-        GreenCarPositionZ = to2.CarPositionZ;
+        GreenCarSpeed = to.VppSpeed;
+        GreenCarPositionX = to.VppPositionX;
+        GreenCarPositionZ = to.VppPositionZ;
         CarisFront = to.CarisFront;
-        CarisFront2 = to2.CarisFront;
         DrivingMode = to.DrivingMode;
         DrivingMode2 = to2.DrivingMode;
-        QB_s = to2.QB;
         dis = to.dis;
-
-        // ファイル書き出し
-        // 現在のフォルダにsaveData.csvを出力する(決まった場所に出力したい場合は絶対パスを指定してください)
-        // 引数説明：第1引数→ファイル出力先, 第2引数→ファイルに追記(true)or上書き(false), 第3引数→エンコード
-        sw = new StreamWriter(@"SaveData.csv", false, Encoding.GetEncoding("Shift_JIS"));
-        // ヘッダー出力
-        string[] s1 = { "time" ,"BlueCarCo", "BlueCarCm", "GreenCarCo", "GreenCarCm", "BlueCarSpeed", "BlueCarPositionX", "BlueCarPositionZ", "GreenCarSpeed", "GreenCarPositionX", "GreenCarPositionZ","distance", "ボタン" };
-        string s2 = string.Join(",", s1);
-        sw.WriteLine(s2);
-        // StreamWriterを閉じる
-        sw.Close();
     }
 
     // データ出力
@@ -106,27 +93,10 @@ public class OutputStatus : MonoBehaviour
         GreenCarPositionX = to2.CarPositionX;
         GreenCarPositionZ = to2.CarPositionZ;
         CarisFront = to.CarisFront;
-        CarisFront2 = to2.CarisFront;
         DrivingMode = to.DrivingMode;
         DrivingMode2 = to2.DrivingMode;
         QB_s = to2.QB;
         dis = to.dis;
-
-        timeleft -= Time.deltaTime;
-        SaveData(time.ToString(), pCo.ToString(), pCm.ToString(), qCo.ToString(), qCm.ToString(), BlueCarSpeed.ToString(), BlueCarPositionX.ToString(), BlueCarPositionZ.ToString(), GreenCarSpeed.ToString(), GreenCarPositionX.ToString(), GreenCarPositionZ.ToString(), dis.ToString(), "on");
-        /*if (timeleft <= 0.0)
-        {
-            timeleft = 1.0f;
-            //csv書き出し
-            if (Input.GetKey(KeyCode.F))
-            {
-                SaveData(time.ToString(), pCo.ToString(), pCm.ToString(), qCo.ToString(), qCm.ToString(), BlueCarSpeed.ToString(), BlueCarPositionX.ToString(), BlueCarPositionZ.ToString(), GreenCarSpeed.ToString(), GreenCarPositionX.ToString(), GreenCarPositionZ.ToString(), dis.ToString(),  "on");
-            }
-            else
-            {
-                SaveData(time.ToString(), pCo.ToString(), pCm.ToString(), qCo.ToString(), qCm.ToString(), BlueCarSpeed.ToString(), BlueCarPositionX.ToString(), BlueCarPositionZ.ToString(), GreenCarSpeed.ToString(), GreenCarPositionX.ToString(), GreenCarPositionZ.ToString(), dis.ToString(),  "off");
-            }
-            time += 1;
-        }*/
+       
     }
 }
