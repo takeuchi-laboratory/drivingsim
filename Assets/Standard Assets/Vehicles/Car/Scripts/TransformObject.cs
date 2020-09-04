@@ -25,7 +25,7 @@ public class TransformObject : MonoBehaviour
     public GameObject vpp;
     StreamWriter sw; //csv書き込み用の変数
 
-    public float d = 28; //接近距離の閾値
+    float d = 29.5f; //接近距離の閾値
     public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
     public float MaxSpeed_kmh = 60;      //carの最高速度(km/h)
     //public float SlowSpeed_kmh = 40;    //vppが遅いときの閾値(km/h)
@@ -34,7 +34,7 @@ public class TransformObject : MonoBehaviour
     public float ad3_p1 = 50, ad3_p2 = 1, sb3_p1 = 5, sb3_p2 = 1; //パラメータ
     public float ad4_p1 = 20, sb4_p1 = 1;    //パラメータ
     public float ad5_p1 = 20, sb5_p1 = 1;    //パラメータ
-    public float ad6_p1 = 20, sb6_p1 = 1;    //パラメータ
+    public float ad6_p1 = 20, ad6_p2 = 1, sb6_p1 = 1, sb6_p2 = 1;    //パラメータ
     public float CoLine = 1.4f; //Coの閾値
     public float CmLine = 1.4f; //Cmの閾値
     public float Co;
@@ -52,8 +52,8 @@ public class TransformObject : MonoBehaviour
     float prerotationvpp;   //作業用変数　vppの前の角度
     float vppacceleration;        
     float CountRotationErr;   //蛇行した時間
-    float Add1, Add2, Add3;
-    float Sub1, Sub2, Sub3;
+    [System.NonSerialized] public float Add1, Add2, Add3;
+    [System.NonSerialized] public float Sub1, Sub2, Sub3;
     float Add4, Add5, Add6;
     float Sub4, Sub5, Sub6;
     float PreCarPositionX, PreCarPositionZ;  //前回のエージェントの座標
@@ -61,8 +61,8 @@ public class TransformObject : MonoBehaviour
     [System.NonSerialized] public float CarPositionX, CarPositionZ;  //今のエージェントの座標
     [System.NonSerialized] public float VppPositionX, VppPositionZ;  //現在の相手の座標
     float G_sum;    //一秒間のずれの合計
-    float G_Cm = 0.5f;      //ずれの閾値Cm
-    float G_Co = 1.0f;      //ずれの閾値Co
+    float G_Cm = 0.3f;      //ずれの閾値Cm
+    float G_Co = 0.8f;      //ずれの閾値Co
     float Gap_CarX;  
     float Gap_VppX;
     float Gap;  //人の車とエージェントの車の0.02秒間のx座標のずれ
@@ -77,12 +77,12 @@ public class TransformObject : MonoBehaviour
 
     [System.NonSerialized] public float VppSpeed, VppSpeed_ms, PreVppSpeed_ms;
     [System.NonSerialized] public float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
-    [System.NonSerialized] public int DrivingMode = 0;
+    public int DrivingMode = 0;
     int pass_N = 0; //追い越しの状態遷移
-    int pass_N2 = 0;    //蛇行の状態遷移
+    public int pass_N2 = 0;    //蛇行の状態遷移
 
     int countG;
-    int countreachtime,countsafetime;
+    [System.NonSerialized] public int countreachtime,countsafetime;
     int countsuddenbraking, countsafetime2 ;
     int countD;
     int oikoshikenchi = 0;
@@ -150,9 +150,6 @@ public class TransformObject : MonoBehaviour
         quaternionvpp = vpp.transform.rotation;
         //Debug.Log("車間距離:" + dis);
         
-
-        
-
         PreCarPositionX = cartransform.position.x;
         PreCarPositionZ = cartransform.position.z;
         PreVppPositionX = vpptransform.position.x;
@@ -163,9 +160,6 @@ public class TransformObject : MonoBehaviour
         CarPositionZ = cartransform.position.z;
         VppPositionX = vpptransform.position.x;
         VppPositionZ = vpptransform.position.z;
-
-
-
 
         /*if (Vector3.Dot(cartransform.forward, ) <= cartransform.forward.magnitude * target.magnitude * 0.999
                     && cartransform.position.z < vpptransform.position.z)
@@ -187,7 +181,7 @@ public class TransformObject : MonoBehaviour
         {
             
             //Debug.Log("回転寿司");
-            if (CarisFront == true)  //エージェントの車が前の時
+            if (CarisFront == true)  //自分の車が前の時
             {
                 if(VppPositionX > 145)
                 {
@@ -240,12 +234,12 @@ public class TransformObject : MonoBehaviour
                 Add4 = (float)Math.Sqrt(con1 * ad4_p1);
                 Sub4 = (float)Math.Sqrt(con2 * sb4_p1);
             }
-            else if (CarisFront == false)    //エージェントの車が後ろの時
+            else if (CarisFront == false)    //自分の車が後ろの時
             {
                 if(Cm > CmLine + 0.01)
                 {
                     oikoshigauge += 0.02f;
-                    if(oikoshigauge > 25)  //追い越しまでの時間変更あり
+                    if(oikoshigauge > 1000)  //追い越しまでの時間25秒
                     {
                         DrivingMode = 1;
                         oikoshigauge = 0;
@@ -286,42 +280,55 @@ public class TransformObject : MonoBehaviour
                 else if (VppSpeed_ms >= BaseSpeed_ms)
                 {
                     t4 = t4 + 0.02f;
-                    t3 = t3 - Mathf.Clamp(t3 - 0.02f, 0, 1000);
+                    t3 = Mathf.Clamp(t3 - 0.02f, 0, 1000);
                     
                 }
 
                 if (countG < 50)
                 {
-                    G_sum += Gap;
-                    countG += 1;
+                    if (dis < d + 100) 
+                    {
+                        G_sum += Gap;
+                        countG += 1;
+                    }
+                    else
+                    {
+                        G_sum = 0;
+                        countG = 0;
+                    }
+            
                 }
                 else if (countG == 50)
                 {
+                   // Debug.Log(G_sum);
                     if (G_Co > G_sum && G_sum >= G_Cm)
                     {
+                        
                         t5 = t5 + 1;
                         t6 = Mathf.Clamp(t6 - 1.00f, 0, 1000);
-                        Debug.Log("蛇行検知");
+                        Debug.Log("蛇行検知小");
                     }
                     else if (G_sum < G_Cm)
                     {
                         t6 = t6 + 1;
-                        t5 = Mathf.Clamp(t5 - 1.00f, 0, 1000);
+                        t5 = Mathf.Clamp(t5 - 0.3f, 0, 1000);
+                        //t5 = Mathf.Clamp(t5 - 0.01f, 0, 1000);
 
                         con6 = con6 + 1;
-                        con5 = Mathf.Clamp(con5 - 1.00f, 0, 1000);
+                        con5 = Mathf.Clamp(con5 - 0.3f, 0, 1000);
                     }
                     else if (G_sum >= G_Co)
                     {
                         con5 = con5 + 1;
 
                         con6 = Mathf.Clamp(con6 - 1.00f, 0, 1000);
-                        Debug.Log("蛇行検知");
+                        Debug.Log("蛇行検知大");
+
                     }
                     else if (G_sum < G_Co)
                     {
                         con6 = con6 + 1;
-                        con5 = Mathf.Clamp(con5 - 1.00f, 0, 1000);
+                        con5 = Mathf.Clamp(con5 - 0.3f, 0, 1000);
                     }
 
                     countG = 0;
@@ -356,15 +363,20 @@ public class TransformObject : MonoBehaviour
                     }
                     con4 = con4 + 0.02f;
                 }
-                Add2 = (float)Math.Sqrt((Mathf.Clamp((BaseSpeed_ms - VppSpeed_ms),5f , 40) * ad2_p1 / BaseSpeed_ms) * t3 * ad2_p2);
+                //Add2 = t3 * ad2_p2;
+                Add2 = (float)Math.Sqrt((Mathf.Clamp((BaseSpeed_ms - VppSpeed_ms), 5f, 40) * ad2_p1 / BaseSpeed_ms) * t3 * ad2_p2);
                 Sub2 = (float)Math.Sqrt((Mathf.Clamp((VppSpeed_ms - BaseSpeed_ms),0f, 40) * sb2_p1 / BaseSpeed_ms) * t4 * sb2_p2);
-                Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * ad3_p1 / G_Cm) * t5 * ad3_p2);
-                Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * sb3_p1 / G_Cm) * t6 * sb3_p2);
+               // Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * ad3_p1 / G_Cm) * t5 * ad3_p2);
+               // Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * sb3_p1 / G_Cm) * t6 * sb3_p2);
+                Add3 = t5 * ad3_p1;
+                Sub3 = t6 * sb3_p1;
 
                 Add5 = (float)Math.Sqrt(con3 * ad5_p1 );
                 Sub5 = (float)Math.Sqrt(con4 * sb5_p1);
-                Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con5 * ad6_p1);
-                Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) / G_Co) * con6 * sb6_p1);
+               // Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) * ad6_p1 / G_Co) * con5 * ad6_p2);
+               // Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) * ad6_p1 / G_Co) * con6 * sb6_p2);
+                Add6 = con5 * ad6_p1;
+                Sub6 = con6 * sb6_p1;
             }
             //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
             Add1 = Mathf.Clamp(Add1, 0, 50f);
@@ -422,7 +434,7 @@ public class TransformObject : MonoBehaviour
         {
 
             //追い越しの処理
-            if (pass_N == 0)
+            if (pass_N == 0)    //右車線へ行く
             {
                 Debug.Log("追い越し開始");
                 //targetX1 = VppPositionX + 4f;
@@ -440,14 +452,17 @@ public class TransformObject : MonoBehaviour
                     pass_N = 3;
                 }
                 
-                if (CarSpeed <= 60)
+                if (CarSpeed < VppSpeed + 15)
                 {
                     f += 2.0f;
-                }
-                else
+                } else if(CarSpeed >= MaxSpeed_kmh)
                 {
                     f -= 2.0f;
                 }
+                else if(CarSpeed >= VppSpeed + 15)
+                {
+                    f -= 2.0f;
+                } 
                 float t, tx, tz;
                 t = target.magnitude;
                 tx = targetX1 - cartransform.position.x;
@@ -476,7 +491,7 @@ public class TransformObject : MonoBehaviour
             }
 
 
-            else if (pass_N == 1)
+            else if (pass_N == 1)   //右車線にいて、左前方の車を追い越す
             {
                 //targetX1 = VppPositionX;
                 targetX1 = 147.75f;
@@ -485,11 +500,15 @@ public class TransformObject : MonoBehaviour
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
 
-                if (CarSpeed <= 60)
+                if (CarSpeed < VppSpeed + 15)
                 {
                     f += 2.0f;
                 }
-                else
+                else if (CarSpeed >= MaxSpeed_kmh)
+                {
+                    f -= 2.0f;
+                }
+                else if (CarSpeed >= VppSpeed + 15)
                 {
                     f -= 2.0f;
                 }
@@ -524,7 +543,7 @@ public class TransformObject : MonoBehaviour
 
             }
 
-            else if (pass_N == 4)
+            else if (pass_N == 4)   //左車線に戻る
             {
                 //targetX1 = VppPositionX;
                 targetX1 = 143f;
@@ -532,13 +551,15 @@ public class TransformObject : MonoBehaviour
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
-
-
-                if (CarSpeed <= 60)
+                if (CarSpeed < VppSpeed + 15)
                 {
                     f += 2.0f;
                 }
-                else
+                else if (CarSpeed >= MaxSpeed_kmh)
+                {
+                    f -= 2.0f;
+                }
+                else if (CarSpeed >= VppSpeed + 15)
                 {
                     f -= 2.0f;
                 }
@@ -653,8 +674,100 @@ public class TransformObject : MonoBehaviour
                 //Debug.Log(cartransform.forward);
                 //cartransform.position = new Vector3(targetX1, pos.y, targetZ1); 
         }
-
-        if(DrivingMode == 2)    //蛇行運転
+        else if(DrivingMode == 2)   //蛇行
+        {
+            if(dis > d)
+            {
+                countreachtime = Mathf.Clamp(countreachtime - 1,0, 1000);
+            }
+            if(pass_N2 == 0)    //右側の目標点決定
+            {
+                targetX1 = 144f;
+                targetZ1 = CarPositionZ + 20f;
+                cartransform.Translate(0, 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f);
+                pass_N2 = 1;
+            } else if(pass_N2 == 1) //右側の目標点へ移動
+            {
+                if(countD == 3)
+                {
+                    targetX1 = 143f;
+                    targetZ1 = CarPositionZ + 20f;
+                    target = new Vector3(targetX1 - cartransform.position.x, 0, targetZ1 - cartransform.position.z);
+                    float t, tx, tz;
+                    t = target.magnitude;
+                    tx = targetX1 - cartransform.position.x;
+                    tz = targetZ1 - cartransform.position.z;
+                    cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
+                    pass_N2 = 5;
+                }
+                else
+                {
+                    target = new Vector3(targetX1 - cartransform.position.x, 0, targetZ1 - cartransform.position.z);
+                    float t, tx, tz;
+                    t = target.magnitude;
+                    tx = targetX1 - cartransform.position.x;
+                    tz = targetZ1 - cartransform.position.z;
+                    cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0,
+                        (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
+                    if (cartransform.position.z >= targetZ1)
+                    {
+                        targetX1 = 144f;
+                        targetZ1 = CarPositionZ + 30f;
+                        pass_N2 = 2;
+                    }
+                }
+              
+            } else if(pass_N2 == 2) //右側にずれた状態でまっすぐ走る
+            { 
+                cartransform.Translate(0, 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f);
+                if (cartransform.position.z >= targetZ1)
+                {
+                    targetX1 = 142f;
+                    targetZ1 = CarPositionZ + 10f;
+                    pass_N2 = 3;
+                }
+            } else if(pass_N2 == 3) //左側の目標点へ移動
+            {
+                target = new Vector3(targetX1 - cartransform.position.x, 0, targetZ1 - cartransform.position.z);
+                float t, tx, tz;
+                t = target.magnitude;
+                tx = targetX1 - cartransform.position.x;
+                tz = targetZ1 - cartransform.position.z;
+                cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0,
+                    (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
+                if (cartransform.position.z >= targetZ1)
+                {
+                    targetX1 = 144f;
+                    targetZ1 = CarPositionZ + 20f;
+                    pass_N2 = 4;
+                }
+            } else if(pass_N2 == 4) //左側にずれた状態でまっすぐ走る
+            {
+                cartransform.Translate(0, 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f );
+                if (cartransform.position.z >= targetZ1)
+                {
+                    targetX1 = 144f;
+                    targetZ1 = CarPositionZ + 10f;
+                    countD += 1;
+                    pass_N2 = 1;
+                }
+            } else if(pass_N2 == 5)
+            {
+                target = new Vector3(targetX1 - cartransform.position.x, 0, targetZ1 - cartransform.position.z);
+                float t, tx, tz;
+                t = target.magnitude;
+                tx = targetX1 - cartransform.position.x;
+                tz = targetZ1 - cartransform.position.z;
+                cartransform.Translate((BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tx / t), 0, (BaseSpeed_ms + (f * 0.02f)) * 0.02f * (tz / t));
+                if (cartransform.position.z >= targetZ1)
+                {
+                    DrivingMode = 0;
+                    pass_N2 = 0;
+                    countD = 0;
+                }
+            }
+        }
+        /*else if(DrivingMode == 2)    //蛇行運転
         {
             if(pass_N2 == 0)    //右側に
             {
@@ -720,9 +833,11 @@ public class TransformObject : MonoBehaviour
                 {
                     DrivingMode = 0;
                     pass_N2 = 0;
+                    countD = 0;
                 }
             }
-        }
+        }*/
+        
         PreCarSpeed_ms = CarSpeed_ms;
 
     }
@@ -902,7 +1017,7 @@ public class TransformObject : MonoBehaviour
         {
             if (Pv < BaseSpeed_kmh && distance < safedistance(Qv) && Qv > safespeed(distance) && (BC == 1 || BC == 3 || BC == 4 || (BC == 2 && Co<CoLine && Cm<CmLine) ))
             {
-                Debug.Log("安全距離にします");
+                //Debug.Log("安全距離にします");
                 return Mathf.Clamp((distance) - Qv / (3.6f * time), -9.0f, 2.0f);
                 //return safespeed(distance) - Qv / (3.6f * time);
             } 
@@ -962,7 +1077,7 @@ public class TransformObject : MonoBehaviour
                 {
                     if (Pv < Qv)
                     {
-                        Debug.Log("ちょっと下げる");
+                        //Debug.Log("ちょっと下げる");
                         return -2.0f;
                     }
                     else

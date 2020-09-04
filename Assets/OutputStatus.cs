@@ -25,7 +25,10 @@ public class OutputStatus : MonoBehaviour
     int QB_s;
     float dis;
     float time;
-    float con3;
+    float con1,con2,con3;
+    int pass_N2;
+    int countreachtime;
+    float add2, sub2;
 
 
     // Start is called before the first frame update
@@ -50,6 +53,12 @@ public class OutputStatus : MonoBehaviour
         DrivingMode2 = to2.DrivingMode;
         dis = to.dis;
         con3 = to.con3;
+        pass_N2 = to.pass_N2;
+        con1 = to.con1;
+        con2 = to.con2;
+        countreachtime = to.countreachtime;
+        add2 = to.Add2;
+        sub2 = to.Sub2;
     }
 
     private void OnGUI()
@@ -94,6 +103,11 @@ public class OutputStatus : MonoBehaviour
 
             GUI.Label(new Rect(90, 300, 500, 100), "distance " + dis.ToString());
             GUI.Label(new Rect(90, 320, 500, 100), "con3 " + con3.ToString());
+            GUI.Label(new Rect(90, 340, 500, 100), "passN2 " + pass_N2.ToString());
+            GUI.Label(new Rect(90, 360, 500, 100), "con1 " + con1.ToString());
+            GUI.Label(new Rect(90, 380, 500, 100), "Add2 " + add2.ToString());
+            GUI.Label(new Rect(90, 400, 500, 100), "Sub2 " + sub2.ToString());
+
         }
 
 
@@ -123,5 +137,11 @@ public class OutputStatus : MonoBehaviour
         DrivingMode2 = to2.DrivingMode;
         dis = to.dis;
         con3 = to.con3;
+        pass_N2 = to.pass_N2;
+        con1 = to.con1;
+        con2 = to.con2;
+        countreachtime = to.countreachtime;
+        add2 = to.Add2;
+        sub2 = to.Sub2;
     }
 }
