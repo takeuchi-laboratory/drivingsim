@@ -452,12 +452,12 @@ public class TransformObject : MonoBehaviour
                     pass_N = 3;
                 }
                 
-                if (CarSpeed < VppSpeed + 15)
-                {
-                    f += 2.0f;
-                } else if(CarSpeed >= MaxSpeed_kmh)
+                if (CarSpeed >= MaxSpeed_kmh)
                 {
                     f -= 2.0f;
+                } else if(CarSpeed < VppSpeed + 15)
+                {
+                    f += 2.0f;
                 }
                 else if(CarSpeed >= VppSpeed + 15)
                 {
@@ -500,18 +500,19 @@ public class TransformObject : MonoBehaviour
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
 
-                if (CarSpeed < VppSpeed + 15)
-                {
-                    f += 2.0f;
-                }
-                else if (CarSpeed >= MaxSpeed_kmh)
+                if (CarSpeed >= MaxSpeed_kmh)
                 {
                     f -= 2.0f;
+                }
+                else if (CarSpeed < VppSpeed + 15)
+                {
+                    f += 2.0f;
                 }
                 else if (CarSpeed >= VppSpeed + 15)
                 {
                     f -= 2.0f;
                 }
+ 
 
                 float t, tx, tz;
                 t = target.magnitude;
@@ -547,22 +548,24 @@ public class TransformObject : MonoBehaviour
             {
                 //targetX1 = VppPositionX;
                 targetX1 = 143f;
-                targetZ1 = VppPositionZ + 25f;
+                targetZ1 = VppPositionZ + 40f;
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
-                if (CarSpeed < VppSpeed + 15)
-                {
-                    f += 2.0f;
-                }
-                else if (CarSpeed >= MaxSpeed_kmh)
+
+                if (CarSpeed >= MaxSpeed_kmh)
                 {
                     f -= 2.0f;
+                }
+                else if (CarSpeed < VppSpeed + 15)
+                {
+                    f += 2.0f;
                 }
                 else if (CarSpeed >= VppSpeed + 15)
                 {
                     f -= 2.0f;
                 }
+
 
                 float t, tx, tz;
                 t = target.magnitude;
