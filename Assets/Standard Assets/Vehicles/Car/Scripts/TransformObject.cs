@@ -28,7 +28,22 @@ public class TransformObject : MonoBehaviour
     float d = 29.5f; //接近距離の閾値
     public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
     public float MaxSpeed_kmh = 60;      //carの最高速度(km/h)
-    //public float SlowSpeed_kmh = 40;    //vppが遅いときの閾値(km/h)
+
+    //float[] ad1_p1 = new float[4] { 1, 1, 1, 1 };
+    //float[] ad1_p2 = new float[4] { 7, 1, 1, 1 };
+    //float[] sb1_p1 = new float[4] { 1, 1, 1, 1 };
+    //float[] ad2_p1 = new float[4] { 1, 1, 1, 1 };
+    //float[] ad2_p2 = new float[4] { 7, 1, 1, 1 };
+    //float[] sb2_p1 = new float[4] { 0.5f, 1, 1, 1 };
+    //float[] sb2_p2 = new float[4] { 1, 1, 1, 1 };
+    //float[] ad3_p1 = new float[4] { 1, 1, 1, 1 };
+    //float[] sb3_p1 = new float[4] { 0.3f, 1, 1, 1 };
+    //float[] ad4_p1 = new float[4] { 5, 1, 1, 1 };
+    //float[] sb4_p1 = new float[4] { 0.7f, 1, 1, 1 };
+    //float[] ad5_p1 = new float[4] { 20, 1, 1, 1 };
+    //float[] sb5_p1 = new float[4] { 1.5f, 1, 1, 1 };
+    //float[] ad6_p1 = new float[4] { 1, 1, 1, 1 };
+    //float[] sb6_p1 = new float[4] { 0.2f, 1, 1, 1 };
     public float ad1_p1 = 50f, ad1_p2 = 5f, sb1_p1;
     public float ad2_p1 = 1, ad2_p2 = 1, sb2_p1 = 1, sb2_p2 = 1;
     public float ad3_p1 = 50, ad3_p2 = 1, sb3_p1 = 5, sb3_p2 = 1; //パラメータ
@@ -86,11 +101,13 @@ public class TransformObject : MonoBehaviour
     int countsuddenbraking, countsafetime2 ;
     int countD;
     int oikoshikenchi = 0;
-    public int QB = 0;
+    [System.NonSerialized] public int QB = 0;
     public int BC; //BehavioralCharacteristics;   //1…運転良安全良  2…運転良安全悪 3…運転悪安全良　4…運転悪安全悪
+    public int CoCmUpMode;
+    public float CoCmUpModeTime;
 
-    
-    public bool CarisFront; //0なら自動運転車が後ろ、1なら前
+
+    [System.NonSerialized] public bool CarisFront; //0なら自動運転車が後ろ、1なら前
     bool CarisRight; //0ならCarが左、1なら右
     bool Boikoshi, Boikoshi2;
 
@@ -393,13 +410,27 @@ public class TransformObject : MonoBehaviour
             Sub5 = Mathf.Clamp(Sub5, 0, Add5);
             Sub6 = Mathf.Clamp(Sub6, 0, Add6);
 
-            Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
-            Cm2 = (float)Math.Exp(Add3) / ((float)Math.Exp(Add3) + (float)Math.Exp(Sub3));
-            Cm = Cm1 + Cm2;
+            if(CoCmUpMode == 0)
+            {
+                Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
+                Cm2 = (float)Math.Exp(Add3) / ((float)Math.Exp(Add3) + (float)Math.Exp(Sub3));
+                Cm = Cm1 + Cm2;
 
-            Co1 = (float)Math.Exp(Add4 + Add5) / ((float)Math.Exp(Add4 + Add5) + (float)Math.Exp(Sub4 + Sub5));
-            Co2 = (float)Math.Exp(Add6) / ((float)Math.Exp(Add6) + (float)Math.Exp(Sub6));
-            Co = Co1 + Co2;
+                Co1 = (float)Math.Exp(Add4 + Add5) / ((float)Math.Exp(Add4 + Add5) + (float)Math.Exp(Sub4 + Sub5));
+                Co2 = (float)Math.Exp(Add6) / ((float)Math.Exp(Add6) + (float)Math.Exp(Sub6));
+                Co = Co1 + Co2;
+            } else if(CoCmUpMode == 1)
+            {
+                Cm = 1.4f;
+                Co = 1.4f;
+                CoCmUpModeTime += 0.02f;
+                if(CoCmUpModeTime == 10)    //10秒たったらCo,Cmを計算するようにする
+                {
+                    CoCmUpMode = 0;
+                }
+
+            }
+            
 
             
             
