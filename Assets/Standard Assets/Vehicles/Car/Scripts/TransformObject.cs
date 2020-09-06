@@ -421,10 +421,10 @@ public class TransformObject : MonoBehaviour
                 Co = Co1 + Co2;
             } else if(CoCmUpMode == 1)
             {
-                Cm = 1.4f;
-                Co = 1.4f;
+                Cm = 1.41f;
+                Co = 1.41f;
                 CoCmUpModeTime += 0.02f;
-                if(CoCmUpModeTime == 10)    //10秒たったらCo,Cmを計算するようにする
+                if(CoCmUpModeTime >= 10)    //10秒たったらCo,Cmを計算するようにする
                 {
                     CoCmUpMode = 0;
                 }
