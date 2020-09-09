@@ -16,6 +16,7 @@ using System.IO;
 //x = 147.75が片側二車線の道路の右車線の真ん中
 public class TransformObject : MonoBehaviour
 {
+    private Renderer m_Renderer;
     private Transform _transform;
     Rigidbody rigidbody;    //car(自動運転車)のrigidbodyを格納する変数?
     Rigidbody rigidbodyvpp; //vpp(人の車)のrigidbodyを格納する変数?
@@ -85,6 +86,7 @@ public class TransformObject : MonoBehaviour
     float targetX1, targetZ1;  //追い越し時の車線変更するときのターゲット
     float oikoshigauge;
     float slowgauge;
+    [System.NonSerialized] public float fbreak;
     string carspeed;
   
     Vector3 pos;
@@ -130,6 +132,7 @@ public class TransformObject : MonoBehaviour
         //vppacceleration = (prevelocityvpp - rigidbodyvpp.velocity.magnitude) / 0.02f;
         //rigidbody.velocity = transform.forward * BaseSpeed_ms;
         //rigidbody.AddForce(transform.forward * 4/3.6f, ForceMode.Acceleration);
+        m_Renderer = GetComponent<Renderer>();
     }
 
 
@@ -177,6 +180,8 @@ public class TransformObject : MonoBehaviour
         CarPositionZ = cartransform.position.z;
         VppPositionX = vpptransform.position.x;
         VppPositionZ = vpptransform.position.z;
+
+        
 
         /*if (Vector3.Dot(cartransform.forward, ) <= cartransform.forward.magnitude * target.magnitude * 0.999
                     && cartransform.position.z < vpptransform.position.z)
@@ -410,29 +415,38 @@ public class TransformObject : MonoBehaviour
             Sub5 = Mathf.Clamp(Sub5, 0, Add5);
             Sub6 = Mathf.Clamp(Sub6, 0, Add6);
 
-            if(CoCmUpMode == 0)
-            {
-                Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
-                Cm2 = (float)Math.Exp(Add3) / ((float)Math.Exp(Add3) + (float)Math.Exp(Sub3));
-                Cm = Cm1 + Cm2;
+            Cm1 = (float)Math.Exp(Add1 + Add2) / ((float)Math.Exp(Add1 + Add2) + (float)Math.Exp(Sub1 + Sub2));
+            Cm2 = (float)Math.Exp(Add3) / ((float)Math.Exp(Add3) + (float)Math.Exp(Sub3));
 
-                Co1 = (float)Math.Exp(Add4 + Add5) / ((float)Math.Exp(Add4 + Add5) + (float)Math.Exp(Sub4 + Sub5));
-                Co2 = (float)Math.Exp(Add6) / ((float)Math.Exp(Add6) + (float)Math.Exp(Sub6));
+            Co1 = (float)Math.Exp(Add4 + Add5) / ((float)Math.Exp(Add4 + Add5) + (float)Math.Exp(Sub4 + Sub5));
+            Co2 = (float)Math.Exp(Add6) / ((float)Math.Exp(Add6) + (float)Math.Exp(Sub6));
+            if (CoCmUpMode == 0)
+            {
+                Cm = Cm1 + Cm2;
                 Co = Co1 + Co2;
             } else if(CoCmUpMode == 1)
             {
                 Cm = 1.41f;
-                Co = 1.41f;
+                Co = Co1 + Co2;
                 CoCmUpModeTime += 0.02f;
                 if(CoCmUpModeTime >= 10)    //10秒たったらCo,Cmを計算するようにする
                 {
                     CoCmUpMode = 0;
                 }
 
+            } else if(CoCmUpMode == 2)
+            {
+                Co = 1.41f;
+                Cm = Cm1 + Cm2;
+                CoCmUpModeTime += 0.02f;
+                if (CoCmUpModeTime >= 10)    //10秒たったらCo,Cmを計算するようにする
+                {
+                    CoCmUpMode = 0;
+                }
             }
-            
 
-            
+
+            fbreak = fv(Co, Cm, CarSpeed, VppSpeed, dis);
             
             f += fv(Co, Cm, CarSpeed, VppSpeed, dis);
 
@@ -1121,7 +1135,7 @@ public class TransformObject : MonoBehaviour
                 }
                 else if (BC == 2)
                 {
-                    if (Qv < Pv + 5 && distance > 20)
+                    if (Qv < (Pv + 5) && distance > 20)
                     {
                         return 2.0f;
                     }

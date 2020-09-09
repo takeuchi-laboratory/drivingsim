@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class testtransform : MonoBehaviour
 {
+    
     public float speed;
     Rigidbody rigidbody;    //car(自動運転車)のrigidbodyを格納する変数?
     // Start is called before the first frame update
@@ -18,5 +20,6 @@ public class testtransform : MonoBehaviour
     {
         //rigidbody.velocity = new Vector3(0, 0, speed / 3.6f);
         //rigidbody.velocity = new Vector3(0, 0, 40 / 3.6f);
+        //InputSimulator.SimulateKeyPress(VirtualKeyCode.k);
     }
 }
