@@ -29,31 +29,31 @@ public class TransformObject : MonoBehaviour
     public float BaseSpeed_kmh = 40;    //carの基本速度(km/h)
     public float MaxSpeed_kmh = 60;      //carの最高速度(km/h)
 
-    //float[] ad1_p1 = new float[4] { 1, 1, 1, 1 };
-    //float[] ad1_p2 = new float[4] { 7, 1, 1, 1 };
-    //float[] sb1_p1 = new float[4] { 1, 1, 1, 1 };
-    //float[] ad2_p1 = new float[4] { 1, 1, 1, 1 };
-    //float[] ad2_p2 = new float[4] { 7, 1, 1, 1 };
-    //float[] sb2_p1 = new float[4] { 0.5f, 1, 1, 1 };
-    //float[] sb2_p2 = new float[4] { 1, 1, 1, 1 };
-    //float[] ad3_p1 = new float[4] { 1, 1, 1, 1 };
-    //float[] sb3_p1 = new float[4] { 0.3f, 1, 1, 1 };
-    //float[] ad4_p1 = new float[4] { 5, 1, 1, 1 };
-    //float[] sb4_p1 = new float[4] { 0.7f, 1, 1, 1 };
-    //float[] ad5_p1 = new float[4] { 20, 1, 1, 1 };
-    //float[] sb5_p1 = new float[4] { 1.5f, 1, 1, 1 };
-    //float[] ad6_p1 = new float[4] { 1, 1, 1, 1 };
-    //float[] sb6_p1 = new float[4] { 0.2f, 1, 1, 1 };
-    public float ad1_p1 = 50f, ad1_p2 = 5f, sb1_p1;
-    public float ad2_p1 = 1, ad2_p2 = 1, sb2_p1 = 1, sb2_p2 = 1;
-    public float ad3_p1 = 50, ad3_p2 = 1, sb3_p1 = 5, sb3_p2 = 1; //パラメータ
-    public float ad4_p1 = 20, sb4_p1 = 1;    //パラメータ
-    public float ad5_p1 = 20, sb5_p1 = 1;    //パラメータ
-    public float ad6_p1 = 20, ad6_p2 = 1, sb6_p1 = 1, sb6_p2 = 1;    //パラメータ
+    float[] ad1_p1 = new float[4] { 1, 1.1f, 1, 1.1f };
+    float[] ad1_p2 = new float[4] { 7, 8, 7, 8 };
+    float[] sb1_p1 = new float[4] { 1, 0.9f, 1, 0.9f };
+    float[] ad2_p1 = new float[4] { 1, 1.1f, 1, 1.1f };
+    float[] ad2_p2 = new float[4] { 7, 8, 7, 8 };
+    float[] sb2_p1 = new float[4] { 0.5f, 0.4f, 0.5f, 0.4f };
+    float[] sb2_p2 = new float[4] { 1, 0.9f, 1, 0.9f };
+    float[] ad3_p1 = new float[4] { 1, 1.1f, 0.9f, 1 };
+    float[] sb3_p1 = new float[4] { 0.3f, 0.2f, 0.3f, 0.3f };
+    float[] ad4_p1 = new float[4] { 5, 6, 5, 6 };
+    float[] sb4_p1 = new float[4] { 0.7f, 0.6f, 0.7f, 0.6f };
+    float[] ad5_p1 = new float[4] { 20, 21, 20, 21 };
+    float[] sb5_p1 = new float[4] { 1.5f, 1.3f, 1.5f, 1.3f };
+    float[] ad6_p1 = new float[4] { 1, 1.1f, 1, 1.1f };
+    float[] sb6_p1 = new float[4] { 0.2f, 0.1f, 0.2f, 0.1f };
+    //public float ad1_p1 = 50f, ad1_p2 = 5f, sb1_p1;
+    //public float ad2_p1 = 1, ad2_p2 = 1, sb2_p1 = 1, sb2_p2 = 1;
+    //public float ad3_p1 = 50, ad3_p2 = 1, sb3_p1 = 5, sb3_p2 = 1; //パラメータ
+   // public float ad4_p1 = 20, sb4_p1 = 1;    //パラメータ
+   // public float ad5_p1 = 20, sb5_p1 = 1;    //パラメータ
+   // public float ad6_p1 = 20, ad6_p2 = 1, sb6_p1 = 1, sb6_p2 = 1;    //パラメータ
     public float CoLine = 1.4f; //Coの閾値
     public float CmLine = 1.4f; //Cmの閾値
-    public float Co;
-    public float Cm;
+    [System.NonSerialized] public float Co;
+    [System.NonSerialized] public float Cm;
     [System.NonSerialized] public float dis;
     [System.NonSerialized] public float BaseSpeed_ms;   //carの基本速度(m/s) unity上ではm/sで速度を与える必要がある
     [System.NonSerialized] public float MaxSpeed_ms;    //carの最高速度(m/s)
@@ -92,9 +92,9 @@ public class TransformObject : MonoBehaviour
 
     [System.NonSerialized] public float VppSpeed, VppSpeed_ms, PreVppSpeed_ms;
     [System.NonSerialized] public float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
-    public int DrivingMode = 0;
+    [System.NonSerialized] public int DrivingMode = 0;
     int pass_N = 0; //追い越しの状態遷移
-    public int pass_N2 = 0;    //蛇行の状態遷移
+    [System.NonSerialized] public int pass_N2 = 0;    //蛇行の状態遷移
 
     int countG;
     [System.NonSerialized] public int countreachtime,countsafetime;
@@ -245,11 +245,11 @@ public class TransformObject : MonoBehaviour
                     con2 = con2 + 0.02f;
                 }
 
-                Add1 = (float)Math.Sqrt((Mathf.Clamp(d - dis,0.5f,d) * ad1_p1 / d) * t1 * ad1_p2);
-                Sub1 = t2 * sb1_p1;
+                Add1 = (float)Math.Sqrt((Mathf.Clamp(d - dis,0.5f,d) * ad1_p1[BC - 1] / d) * t1 * ad1_p2[BC - 1]);
+                Sub1 = t2 * sb1_p1[BC - 1];
 
-                Add4 = (float)Math.Sqrt(con1 * ad4_p1);
-                Sub4 = (float)Math.Sqrt(con2 * sb4_p1);
+                Add4 = (float)Math.Sqrt(con1 * ad4_p1[BC - 1]);
+                Sub4 = (float)Math.Sqrt(con2 * sb4_p1[BC - 1]);
             }
             else if (CarisFront == false)    //自分の車が後ろの時
             {
@@ -381,19 +381,19 @@ public class TransformObject : MonoBehaviour
                     con4 = con4 + 0.02f;
                 }
                 //Add2 = t3 * ad2_p2;
-                Add2 = (float)Math.Sqrt((Mathf.Clamp((BaseSpeed_ms - VppSpeed_ms), 5f, 40) * ad2_p1 / BaseSpeed_ms) * t3 * ad2_p2);
-                Sub2 = (float)Math.Sqrt((Mathf.Clamp((VppSpeed_ms - BaseSpeed_ms),0f, 40) * sb2_p1 / BaseSpeed_ms) * t4 * sb2_p2);
+                Add2 = (float)Math.Sqrt((Mathf.Clamp((BaseSpeed_ms - VppSpeed_ms), 5f, 40) * ad2_p1[BC - 1] / BaseSpeed_ms) * t3 * ad2_p2[BC - 1]);
+                Sub2 = (float)Math.Sqrt((Mathf.Clamp((VppSpeed_ms - BaseSpeed_ms),0f, 40) * sb2_p1[BC - 1] / BaseSpeed_ms) * t4 * sb2_p2[BC - 1]);
                // Add3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * ad3_p1 / G_Cm) * t5 * ad3_p2);
                // Sub3 = (float)Math.Sqrt((Math.Abs(G_Cm - G_sum) * sb3_p1 / G_Cm) * t6 * sb3_p2);
-                Add3 = t5 * ad3_p1;
-                Sub3 = t6 * sb3_p1;
+                Add3 = t5 * ad3_p1[BC - 1];
+                Sub3 = t6 * sb3_p1[BC - 1];
 
-                Add5 = (float)Math.Sqrt(con3 * ad5_p1 );
-                Sub5 = (float)Math.Sqrt(con4 * sb5_p1);
+                Add5 = (float)Math.Sqrt(con3 * ad5_p1[BC - 1]);
+                Sub5 = (float)Math.Sqrt(con4 * sb5_p1[BC - 1]);
                // Add6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) * ad6_p1 / G_Co) * con5 * ad6_p2);
                // Sub6 = (float)Math.Sqrt((Math.Abs(G_Co - G_sum) * ad6_p1 / G_Co) * con6 * sb6_p2);
-                Add6 = con5 * ad6_p1;
-                Sub6 = con6 * sb6_p1;
+                Add6 = con5 * ad6_p1[BC - 1];
+                Sub6 = con6 * sb6_p1[BC - 1];
             }
             //Cm1 = Add1 + Add2 / ((Add1 + Add2) - (Sub1 + Sub2));
             Add1 = Mathf.Clamp(Add1, 0, 50f);
@@ -579,7 +579,7 @@ public class TransformObject : MonoBehaviour
             {
                 //targetX1 = VppPositionX;
                 targetX1 = 143f;
-                targetZ1 = VppPositionZ + 40f;
+                targetZ1 = VppPositionZ + 40f;  //15,25
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
@@ -1072,11 +1072,11 @@ public class TransformObject : MonoBehaviour
             {
                 if (BC == 3 || BC == 4 || BC == 1)
                 {
-                    if (Pv < Qv)
+                    if (Pv < Qv || Qv >= BaseSpeed_kmh)
                     {
                         return -2.0f;
                     }
-                    else
+                    else 
                     {
                         return 2.0f;
                     }
