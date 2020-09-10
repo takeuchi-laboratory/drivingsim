@@ -48,7 +48,7 @@ public class Outputcsv : MonoBehaviour
         // ファイル書き出し
         // 現在のフォルダにsaveData.csvを出力する(決まった場所に出力したい場合は絶対パスを指定してください)
         // 引数説明：第1引数→ファイル出力先, 第2引数→ファイルに追記(true)or上書き(false), 第3引数→エンコード
-        sw = new StreamWriter(@"4_b4Cm.csv", false, Encoding.GetEncoding("Shift_JIS"));
+        sw = new StreamWriter(@"4_f4Co.csv", false, Encoding.GetEncoding("Shift_JIS"));
         // ヘッダー出力
         //string[] s1 = { "time", "BlueCarCo", "BlueCarCm", "GreenCarCo", "GreenCarCm", "BlueCarSpeed", "BlueCarPositionX", "BlueCarPositionZ", "GreenCarSpeed", "GreenCarPositionX", "GreenCarPositionZ", "distance", "CoButton", "CmButton" };
         string[] s1 = { "time", "YellowCarCo", "YellowCarCm", "GreenCarCo", "GreenCarCm", "YellowCarSpeed", "YellowCarPositionX", "YellowCarPositionZ", "GreenCarSpeed", "GreenCarPositionX", "GreenCarPositionZ", "distance", "CoButton", "CmButton" };
@@ -60,7 +60,7 @@ public class Outputcsv : MonoBehaviour
 
     public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8, string txt9, string txt10, string txt11, string txt12, string txt13, string txt14)
     {
-        sw = new StreamWriter(@"4_b4Cm.csv", true, Encoding.GetEncoding("Shift_JIS"));
+        sw = new StreamWriter(@"4_f4Co.csv", true, Encoding.GetEncoding("Shift_JIS"));
         string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14 };
         string s2 = string.Join(",", s1);
         sw.WriteLine(s2);

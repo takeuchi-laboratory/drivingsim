@@ -426,7 +426,7 @@ public class TransformObject : MonoBehaviour
                 Co = Co1 + Co2;
             } else if(CoCmUpMode == 1)
             {
-                Cm = 1.41f;
+                Cm = 1.42f;
                 Co = Co1 + Co2;
                 CoCmUpModeTime += 0.02f;
                 if(CoCmUpModeTime >= 10)    //10秒たったらCo,Cmを計算するようにする
@@ -436,7 +436,7 @@ public class TransformObject : MonoBehaviour
 
             } else if(CoCmUpMode == 2)
             {
-                Co = 1.41f;
+                Co = 1.42f;
                 Cm = Cm1 + Cm2;
                 CoCmUpModeTime += 0.02f;
                 if (CoCmUpModeTime >= 10)    //10秒たったらCo,Cmを計算するようにする
@@ -593,7 +593,14 @@ public class TransformObject : MonoBehaviour
             {
                 //targetX1 = VppPositionX;
                 targetX1 = 143f;
-                targetZ1 = VppPositionZ + 40f;  //15,25
+                if(BC == 1 || BC == 3)
+                {
+                    targetZ1 = VppPositionZ + 40f;  //25
+                } else if(BC == 2 || BC == 4)
+                {
+                    targetZ1 = VppPositionZ + 25;
+                }
+                
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
@@ -663,7 +670,7 @@ public class TransformObject : MonoBehaviour
             else if(pass_N == 3)
             {
                 Debug.Log("追い越し中断開始");
-                if (dis < safedistance(VppSpeed))
+                if (dis < safedistance(CarSpeed))
                 {
                     f -= 2.0f;
                     cartransform.Translate(0, 0, (f * 0.02f) * 0.02f);
