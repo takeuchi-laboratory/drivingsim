@@ -72189,7 +72189,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400050, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 60
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 400050, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
       propertyPath: m_LocalRotation.x
@@ -72270,9 +72270,8 @@ MonoBehaviour:
   vpp: {fileID: 649233341}
   BaseSpeed_kmh: 40
   MaxSpeed_kmh: 60
-  CoLine: 1.4
-  CmLine: 1.4
-  BC: 4
+  DrivingMode: 0
+  BC: 1
   CoCmUpMode: 0
   CoCmUpModeTime: 0
 --- !u!114 &1685787703
@@ -93073,7 +93072,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 278067303, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: BC
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 278067303, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: d
@@ -93133,7 +93132,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 278067303, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: CoCmUpMode
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 278067304, guid: a9570a05b1424bc46bff181aa79f1f68, type: 3}
       propertyPath: m_Target
@@ -93266,7 +93265,7 @@ PrefabInstance:
     - target: {fileID: 5856992177211046766, guid: a9570a05b1424bc46bff181aa79f1f68,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 100
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 5856992177211046766, guid: a9570a05b1424bc46bff181aa79f1f68,
         type: 3}

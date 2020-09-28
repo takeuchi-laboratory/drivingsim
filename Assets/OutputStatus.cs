@@ -29,6 +29,7 @@ public class OutputStatus : MonoBehaviour
     int pass_N2;
     int countreachtime;
     float add2, sub2;
+    int oikoshikenchi;
 
 
     // Start is called before the first frame update
@@ -59,6 +60,7 @@ public class OutputStatus : MonoBehaviour
         countreachtime = to.countreachtime;
         add2 = to.Add2;
         sub2 = to.Sub2;
+        oikoshikenchi = to2.oikoshikenchi;
     }
 
     private void OnGUI()
@@ -66,12 +68,12 @@ public class OutputStatus : MonoBehaviour
         if (mode == 0)
         {
             
-            GUI.Label(new Rect(0, 160, 500, 100), "BlueCarSpeed " + BlueCarSpeed.ToString());
-            GUI.Label(new Rect(0, 180, 500, 100), "BlueCarPositionX " + BlueCarPositionX.ToString());
-            GUI.Label(new Rect(0, 200, 500, 100), "BlueCarPositionZ " + BlueCarPositionZ.ToString());
-            GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCm " + pCm.ToString());
-            GUI.Label(new Rect(0, 240, 500, 100), "BlueCarCo " + pCo.ToString());
-            GUI.Label(new Rect(0, 260, 500, 100), "BlueDrivingMode " + DrivingMode.ToString());
+            GUI.Label(new Rect(0, 160, 500, 100), "YellowCarSpeed " + BlueCarSpeed.ToString());
+            GUI.Label(new Rect(0, 180, 500, 100), "YellowCarPositionX " + BlueCarPositionX.ToString());
+            GUI.Label(new Rect(0, 200, 500, 100), "YellowCarPositionZ " + BlueCarPositionZ.ToString());
+            GUI.Label(new Rect(0, 220, 500, 100), "YellowCarCm " + pCm.ToString());
+            GUI.Label(new Rect(0, 240, 500, 100), "YellowCarCo " + pCo.ToString());
+            GUI.Label(new Rect(0, 260, 500, 100), "YellowDrivingMode " + DrivingMode.ToString());
             GUI.Label(new Rect(0, 280, 500, 100), "CarisFront " + CarisFront.ToString());
             
 
@@ -85,15 +87,16 @@ public class OutputStatus : MonoBehaviour
             GUI.Label(new Rect(180, 200, 500, 100), "GreenCarPositionZ " + GreenCarPositionZ.ToString());
 
             GUI.Label(new Rect(90, 300, 500, 100), "distance " + dis.ToString());
+            GUI.Label(new Rect(90, 320, 500, 100), "oikoshikenchi " + oikoshikenchi.ToString());
         }
         else if(mode == 1)
         {
-            GUI.Label(new Rect(0, 160, 500, 100), "BlueCarSpeed " + BlueCarSpeed.ToString());
-            GUI.Label(new Rect(0, 180, 500, 100), "BlueCarPositionX " + BlueCarPositionX.ToString());
-            GUI.Label(new Rect(0, 200, 500, 100), "BlueCarPositionZ " + BlueCarPositionZ.ToString());
-            GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCm " + pCm.ToString());
-            GUI.Label(new Rect(0, 240, 500, 100), "BlueCarCo " + pCo.ToString());
-            GUI.Label(new Rect(0, 260, 500, 100), "BlueDrivingMode " + DrivingMode.ToString());
+            GUI.Label(new Rect(0, 160, 500, 100), "YellowCarSpeed " + BlueCarSpeed.ToString());
+            GUI.Label(new Rect(0, 180, 500, 100), "YellowCarPositionX " + BlueCarPositionX.ToString());
+            GUI.Label(new Rect(0, 200, 500, 100), "YellowCarPositionZ " + BlueCarPositionZ.ToString());
+            GUI.Label(new Rect(0, 220, 500, 100), "YellowCarCm " + pCm.ToString());
+            GUI.Label(new Rect(0, 240, 500, 100), "YellowCarCo " + pCo.ToString());
+            GUI.Label(new Rect(0, 260, 500, 100), "YellowDrivingMode " + DrivingMode.ToString());
             GUI.Label(new Rect(0, 280, 500, 100), "CarisFront " + CarisFront.ToString());
 
 
@@ -143,5 +146,6 @@ public class OutputStatus : MonoBehaviour
         countreachtime = to.countreachtime;
         add2 = to.Add2;
         sub2 = to.Sub2;
+        oikoshikenchi = to2.oikoshikenchi;
     }
 }

@@ -48,11 +48,11 @@ public class TransformObject : MonoBehaviour
     //public float ad1_p1 = 50f, ad1_p2 = 5f, sb1_p1;
     //public float ad2_p1 = 1, ad2_p2 = 1, sb2_p1 = 1, sb2_p2 = 1;
     //public float ad3_p1 = 50, ad3_p2 = 1, sb3_p1 = 5, sb3_p2 = 1; //パラメータ
-   // public float ad4_p1 = 20, sb4_p1 = 1;    //パラメータ
-   // public float ad5_p1 = 20, sb5_p1 = 1;    //パラメータ
-   // public float ad6_p1 = 20, ad6_p2 = 1, sb6_p1 = 1, sb6_p2 = 1;    //パラメータ
-    public float CoLine = 1.4f; //Coの閾値
-    public float CmLine = 1.4f; //Cmの閾値
+    // public float ad4_p1 = 20, sb4_p1 = 1;    //パラメータ
+    // public float ad5_p1 = 20, sb5_p1 = 1;    //パラメータ
+    // public float ad6_p1 = 20, ad6_p2 = 1, sb6_p1 = 1, sb6_p2 = 1;    //パラメータ
+    [System.NonSerialized] public float CoLine = 1.4f; //Coの閾値
+    [System.NonSerialized] public float CmLine = 1.4f; //Cmの閾値
     [System.NonSerialized] public float Co;
     [System.NonSerialized] public float Cm;
     [System.NonSerialized] public float dis;
@@ -94,7 +94,7 @@ public class TransformObject : MonoBehaviour
 
     [System.NonSerialized] public float VppSpeed, VppSpeed_ms, PreVppSpeed_ms;
     [System.NonSerialized] public float CarSpeed, CarSpeed_ms, PreCarSpeed_ms;
-    [System.NonSerialized] public int DrivingMode = 0;
+    /*[System.NonSerialized]*/ public int DrivingMode = 0;
     int pass_N = 0; //追い越しの状態遷移
     [System.NonSerialized] public int pass_N2 = 0;    //蛇行の状態遷移
 
@@ -102,7 +102,7 @@ public class TransformObject : MonoBehaviour
     [System.NonSerialized] public int countreachtime,countsafetime;
     int countsuddenbraking, countsafetime2 ;
     int countD;
-    int oikoshikenchi = 0;
+    [System.NonSerialized] public int oikoshikenchi = 0;
     [System.NonSerialized] public int QB = 0;
     public int BC; //BehavioralCharacteristics;   //1…運転良安全良  2…運転良安全悪 3…運転悪安全良　4…運転悪安全悪
     public int CoCmUpMode;
@@ -136,26 +136,6 @@ public class TransformObject : MonoBehaviour
     }
 
 
-
-    /*void Update()//押下されたボタンで丸を示す
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            SaveData("", "", "", "", "○");
-        }
-    }*/
-
-    /*private void OnGUI()
-    {
-        GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
-        GUI.Label(new Rect(0, 200, 500, 100), "BlueCarCm" + Cm.ToString());
-        GUI.Label(new Rect(0, 220, 500, 100), "BlueCarCo" + Co.ToString());
-        GUI.Label(new Rect(0, 240, 500, 100), "Add1" + Add1.ToString());
-        GUI.Label(new Rect(0, 260, 500, 100), "Add4" + Add4.ToString());
-        //GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
-        //GUI.Label(new Rect(0, 180, 500, 100), "BlueCarSpeed" + CarSpeed.ToString());
-    }*/
-
     // Update is called once per frame
     void FixedUpdate()
         {
@@ -167,7 +147,7 @@ public class TransformObject : MonoBehaviour
         CheckPosition();
         CalucGap();
         CalucSpeedAndAcceleration();
-        quaternionvpp = vpp.transform.rotation;
+        
         //Debug.Log("車間距離:" + dis);
         
         PreCarPositionX = cartransform.position.x;
@@ -201,29 +181,28 @@ public class TransformObject : MonoBehaviour
 
         if (DrivingMode == 0)
         {
-            
             //Debug.Log("回転寿司");
             if (CarisFront == true)  //自分の車が前の時
             {
-                if(VppPositionX > 145)
+                if(VppPositionX > 145)  //他の車が中央線より左にいる場合
                 {
-                    Boikoshi = CarisFront;
+                    Boikoshi = CarisFront;  //Boikoshi = true
                 }
                 //Debug.Log("回転寿司");
-                if (dis <= d)        //車間距離が閾値より短い
+                if (dis <= d)        //車間距離が閾値より短い  Cm
                 {
                     t1 = t1 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから)          
                     t2 = Mathf.Clamp(t2 - 0.02f, 0, 1000);
                 }
-                else if (dis > d)  //車間距離が閾値より長い
+                else if (dis > d)  //車間距離が閾値より長い    Cm
                 {
                     t2 = t2 + 0.02f;   //継続時間が0.02加算される(0.02秒ごとに呼び出されるから
                                        //Sub1 = (float)Math.Sqrt((Math.Abs(d - dis)*a2 / d) * t2*b2);
                     t1 = Mathf.Clamp(t1 - 0.02f, 0, 1000);
                 }
-                if (dis <= d)
+                if (dis <= d)   //車間距離が閾値より短い   Co
                 {
-                    countreachtime += 1;
+                    countreachtime += 1;    
                     con2 = Mathf.Clamp(con2 - 0.02f, 0, 1000);
                     countsafetime = 0;
                 }
@@ -258,7 +237,7 @@ public class TransformObject : MonoBehaviour
             }
             else if (CarisFront == false)    //自分の車が後ろの時
             {
-                if(Cm > CmLine + 0.01)
+                if(Cm > CmLine + 0.01)  //Cmが閾値+0.01より大きいとき、一定時間がたったら追い越しモードにする
                 {
                     oikoshigauge += 0.02f;
                     if(oikoshigauge > 1000)  //追い越しまでの時間25秒
@@ -267,35 +246,31 @@ public class TransformObject : MonoBehaviour
                         oikoshigauge = 0;
                     }
                 }
-                if(VppPositionX < 143.8 && VppPositionX >142)
+                if(VppPositionX < 143.8 && VppPositionX >142)   //相手の車が追い越し完了しそうなとき
                 {
-                    Boikoshi2 = CarisFront;
+                    Boikoshi2 = CarisFront; //Boikoshi2 = false
                     if(Boikoshi != Boikoshi2)
-                    {
+                    {   
+                        //Cmをリセットする
                         Add1 = 0;
                         Add4 = 0;
                         t3 = 0;
                         t5 = 0;
                         con3 = 0;
                         con5 = 0;
-                        Boikoshi = Boikoshi2;
+                        Boikoshi = Boikoshi2;   //Boikoshi = false
                         oikoshikenchi = 0;
                     }
                 }
-                if (VppSpeed_ms < BaseSpeed_ms)
+                if (VppSpeed_ms < BaseSpeed_ms) //相手の速度が40km/hより小さいとき
                 { 
-                    if (dis < d)
+                    if (dis < d)    //距離が閾値より短いとき
                     {
                         t3 = t3 + 0.02f;
                         t4 = Mathf.Clamp(t4 - 0.02f, 0, 1000);
                     }
                     else
                     {
-                        //rigidbody.velocity = transform.forward * BaseSpeed_ms;
-                        /*if(rigidbody.velocity.magnitude < BaseSpeed_ms )
-                        {
-                            rigidbody.AddForce(transform.forward * 10f, ForceMode.Acceleration);
-                        }*/
 
                     }
                 }
@@ -306,31 +281,31 @@ public class TransformObject : MonoBehaviour
                     
                 }
 
-                if (countG < 50)
+                if (countG < 50)    //countG<50 →　車のずれを図り始めてから1秒たってないとき
                 {
-                    if (dis < d + 100) 
+                    if (dis < d + 10)   //車間距離がそこそこ近いとき 
                     {
-                        G_sum += Gap;
+                        G_sum += Gap;   //0.02秒間のずれを加算していく
                         countG += 1;
                     }
                     else
                     {
-                        G_sum = 0;
+                        G_sum = 0;  
                         countG = 0;
                     }
             
                 }
-                else if (countG == 50)
+                else if (countG == 50)  //countG == 50 → 車のずれを図り始めてから1秒たったとき
                 {
-                   // Debug.Log(G_sum);
-                    if (G_Co > G_sum && G_sum >= G_Cm)
+                   // Coのずれの閾値　> Cmのずれの閾値
+                    if (G_Co > G_sum && G_sum >= G_Cm)  //ずれの合計がCoの閾値より小さいかつ、Cmの閾値以上のとき
                     {
                         
                         t5 = t5 + 1;
                         t6 = Mathf.Clamp(t6 - 1.00f, 0, 1000);
                         Debug.Log("蛇行検知小");
                     }
-                    else if (G_sum < G_Cm)
+                    else if (G_sum < G_Cm)  //ずれの合計がCmの閾値より小さいとき
                     {
                         t6 = t6 + 1;
                         t5 = Mathf.Clamp(t5 - 0.3f, 0, 1000);
@@ -339,7 +314,7 @@ public class TransformObject : MonoBehaviour
                         con6 = con6 + 1;
                         con5 = Mathf.Clamp(con5 - 0.3f, 0, 1000);
                     }
-                    else if (G_sum >= G_Co)
+                    else if (G_sum >= G_Co) //ずれの合計がCoの閾値以上のとき
                     {
                         con5 = con5 + 1;
 
@@ -347,7 +322,7 @@ public class TransformObject : MonoBehaviour
                         Debug.Log("蛇行検知大");
 
                     }
-                    else if (G_sum < G_Co)
+                    else if (G_sum < G_Co)  //ずれの合計がCoの閾値より小さいとき
                     {
                         con6 = con6 + 1;
                         con5 = Mathf.Clamp(con5 - 0.3f, 0, 1000);
@@ -356,14 +331,14 @@ public class TransformObject : MonoBehaviour
                     countG = 0;
                     G_sum = 0;
                 }
-                if (vppacceleration <= -8.0f && dis < d+10)
+                if (vppacceleration <= -8.0f && dis < d + 10)   //相手の車が急ブレーキをしたかつ、車間距離がある程度近いとき
                 {
                     Debug.Log("急ブレーキ検知");
                     countsuddenbraking += 1;
                     con4 = Mathf.Clamp(con4 - 0.02f, 0, 1000);
                     countsafetime2 = 0;
                 }
-                else if (vppacceleration > -8.0f)
+                else if (vppacceleration > -8.0f)   //相手の車が急ブレーキをしていないとき
                 {
                     if (countsuddenbraking < 15 && countsuddenbraking != 0)
                     {
@@ -420,11 +395,15 @@ public class TransformObject : MonoBehaviour
 
             Co1 = (float)Math.Exp(Add4 + Add5) / ((float)Math.Exp(Add4 + Add5) + (float)Math.Exp(Sub4 + Sub5));
             Co2 = (float)Math.Exp(Add6) / ((float)Math.Exp(Add6) + (float)Math.Exp(Sub6));
-            if (CoCmUpMode == 0)
+            if(oikoshikenchi == 1)
+            {
+                //Co,Cmの値をそのままにする
+            }
+            else if (CoCmUpMode == 0)
             {
                 Cm = Cm1 + Cm2;
                 Co = Co1 + Co2;
-            } else if(CoCmUpMode == 1)
+            } else if(CoCmUpMode == 1)  
             {
                 Cm = 1.42f;
                 Co = Co1 + Co2;
@@ -443,7 +422,7 @@ public class TransformObject : MonoBehaviour
                 {
                     CoCmUpMode = 0;
                 }
-            }
+            } 
 
 
             fbreak = fv(Co, Cm, CarSpeed, VppSpeed, dis);
@@ -483,16 +462,16 @@ public class TransformObject : MonoBehaviour
             {
                 Debug.Log("追い越し開始");
                 //targetX1 = VppPositionX + 4f;
-                targetX1 = 147.75f;
+                targetX1 = 147.75f;         //右車線の中央
                 targetZ1 = VppPositionZ - 2.5f;
                 pos = cartransform.position;
                 target = new Vector3(targetX1 - pos.x, 0, targetZ1 - pos.z);
 
-                if(VppPositionX > 145 )
+                if(VppPositionX > 145 ) //相手の車が右車線によっているときは、追い越し中断モードに入る
                 {
                     pass_N  = 3;
                 }
-                else if (VppSpeed > 60)
+                else if (VppSpeed > 60) //相手の車が60km/hのときは、追い越し中断モードに入る
                 {
                     pass_N = 3;
                 }
@@ -595,7 +574,7 @@ public class TransformObject : MonoBehaviour
                 targetX1 = 143f;
                 if(BC == 1 || BC == 3)
                 {
-                    targetZ1 = VppPositionZ + 40f;  //25
+                    targetZ1 = VppPositionZ + 40f;  
                 } else if(BC == 2 || BC == 4)
                 {
                     targetZ1 = VppPositionZ + 25;
@@ -953,8 +932,6 @@ public class TransformObject : MonoBehaviour
                 oikoshikenchi = 1;
                 return 2.0f;
             } 
-
-
 
             else if (Co > CoLine)
             {
